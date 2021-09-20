@@ -21,7 +21,7 @@ public class RssFeedParserTest {
         try {
             RssFeedParser parser = new RssFeedParser();
             URL fileRef = null;
-            fileRef = Paths.get("../resources/testfeed.xml").toUri().toURL();
+            fileRef = Paths.get("src/test/resources/testfeed.xml").toUri().toURL();
             // this should fail since it is not implemented yet...
             Feed localTestFeed = parser.provideFeedByURL(fileRef);
             assertEquals("testdescription", localTestFeed.getChannel().getDescription());
