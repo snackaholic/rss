@@ -7,10 +7,14 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RssFeedParserTest {
+
+    private final Logger LOG = Logger.getLogger(RssFeedParserTest.class.getName());
 
     public RssFeedParserTest() {
         super();
@@ -20,11 +24,12 @@ public class RssFeedParserTest {
     public void localParseTest() {
         try {
             RssFeedParser parser = new RssFeedParser();
-            URL fileRef = null;
-            fileRef = Paths.get("src/test/resources/testfeed.xml").toUri().toURL();
-            // this should fail since it is not implemented yet...
-            Feed localTestFeed = parser.provideFeedByURL(fileRef);
-            assertEquals("testdescription", localTestFeed.getChannel().getDescription());
+            Feed localTestFeed = parser.provideFeedByURL(Paths.get("src/test/resources/testfeed.xml").toUri().toURL());
+            LOG.log(Level.INFO, "CHECKING DESCRIPTION:");
+            assertEquals("The Rough Cut features in-depth interviews with the top film and television post production professionals working in the industry today.  Hosted by @MattFeury of Avid Technology.", localTestFeed.getChannel().getDescription());
+            LOG.log(Level.INFO, "CHECKING ITEMS:");
+            assertEquals(118, localTestFeed.getChannel().getItems().size());
+            LOG.log(Level.INFO, "TEST SUCCESSFUL:");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
