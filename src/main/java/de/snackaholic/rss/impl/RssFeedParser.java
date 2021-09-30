@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class RssFeedParser implements IFeedByURLProvider {
 
-    private final Logger LOG = Logger.getLogger(RssFeedParser.class.getName());
+    private static final Logger LOG = Logger.getLogger(RssFeedParser.class.getName());
 
     private final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
 
