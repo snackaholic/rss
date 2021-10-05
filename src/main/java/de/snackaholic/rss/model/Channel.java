@@ -3,23 +3,58 @@ package de.snackaholic.rss.model;
 import java.util.List;
 
 /**
- * Representation of an RSS channel node <channel></channel>
+ * Representation of an RSS 2.0 channel node
+ * {@code}
+ *  <channel>
+ *    <link>mandatorylink<link>
+ *    <title>mandatorytitle</title>
+ *    <description>mandatorydescription</description>
+ *    <item></item>
+ *    <item></item>
+ * </channel>
+ * {@code}
+ * TODO: pubdate, lastBuildDate are dates in format of RFC 822
+ * TODO: category has attribute domain -> own model
+ * TODO: cloud has attributes (domain, port, path, registerProcedure, protocol) -> own model
+ * TODO: image has mandatory children(url, title, link ) and optional children (width, height, description) -> own model
  */
 public class Channel {
 
+    // mandatory members
     private String title;
     private String description;
+    private String link;
+    // optional members
+    private List<Item> items;
     private String language;
     private String copyright;
+    private String managingEditor;
     private String pubDate;
-    private String link;
-    private List<Item> items;
+    private String webMaster;
+    private String lastBuildDate;
+    private List<String> categorys;
+    private String generator;
+    private String docs;
+    private List<String> cloud;
+    private String ttl;
+    private String image;
+    private String rating;
+    private List<String> skipHours;
+    private List<String> skipDays;
 
     public Channel() {
         super();
     }
 
     // accessors
+    public String getManagingEditor() {
+        return managingEditor;
+    }
+
+    public void setManagingEditor(String managingEditor) {
+        this.managingEditor = managingEditor;
+    }
+
     public String getTitle() {
         return title;
     }

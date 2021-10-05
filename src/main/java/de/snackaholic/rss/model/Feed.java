@@ -1,14 +1,18 @@
 package de.snackaholic.rss.model;
 
 import java.net.URL;
-import java.util.List;
 
 /**
- * Representation of a Rss Feed
+ * Representation of a Rss 2.0 Feed
+ * {@code}
+ * <rss version="2.0">
+ *    <channel> ... </channel>
+ * </rss>
+ * {@code}
  */
 public class Feed {
-    URL url;
-    Channel channel;
+    private URL url;
+    private Channel channel;
 
     public Feed() {
         super();

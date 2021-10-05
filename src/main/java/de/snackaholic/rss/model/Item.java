@@ -1,11 +1,14 @@
 package de.snackaholic.rss.model;
 
+import java.util.List;
+
 /**
  * Representation of an RSS item node <item></item>
  *
- * TODO enclose is own type with multiple children and so on
+ * TODO enclose is own type with multiple attributes (url, length, type) -> own model
  * TODO add itunes http://www.itunes.com/dtds/podcast-1.0.dtd
  * TODO add google http://www.google.com/schemas/play-podcasts/1.0
+ * TODO: category has attribute domain -> own model
  */
 public class Item {
 
@@ -15,6 +18,10 @@ public class Item {
     private String guid;
     private String description;
     private String enclosure;
+    private String link;
+    private String language;
+    private String copyright;
+    private List<String> categorys;
 
 
     public Item() {
