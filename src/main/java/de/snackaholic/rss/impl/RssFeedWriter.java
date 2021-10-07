@@ -58,6 +58,23 @@ public class RssFeedWriter implements IFeedToStringWriter {
         writer.writeEndElement();
     }
 
+    void writeChannel(Channel theChannel, XMLStreamWriter writer) throws XMLStreamException {
+        writeElementWithCDataIfNotNull(theChannel.getDescription(), "description", writer);
+        writeElementWithCDataIfNotNull(theChannel.getCopyright(), "copyright", writer);
+        writeElementWithCDataIfNotNull(theChannel.getLanguage(), "language", writer);
+        writeElementWithCDataIfNotNull(theChannel.getPubDate(), "pubDate", writer);
+        writeElementWithCDataIfNotNull(theChannel.getLink(), "link", writer);
+        writeElementWithCDataIfNotNull(theChannel.getTitle(), "title", writer);
+        writeElementWithCDataIfNotNull(theChannel.getManagingEditor(), "managingEditor", writer);
+        writeElementWithCDataIfNotNull(theChannel.getWebMaster(), "webMaster", writer);
+        writeElementWithCDataIfNotNull(theChannel.getLastBuildDate(), "lastBuildDate", writer);
+        writeElementWithCDataIfNotNull(theChannel.getGenerator(), "generator", writer);
+        writeElementWithCDataIfNotNull(theChannel.getDocs(), "docs", writer);
+        writeElementWithCDataIfNotNull(theChannel.getTtl(), "ttl", writer);
+        writeElementWithCDataIfNotNull(theChannel.getImage(), "image", writer);
+        writeElementWithCDataIfNotNull(theChannel.getRating(), "rating", writer);
+    }
+
     @Override
     public String writeFeedToString(Feed feed) {
         if (feedIsWritable(feed)) {
@@ -71,12 +88,7 @@ public class RssFeedWriter implements IFeedToStringWriter {
                 writer.writeAttribute("version", "2.0");
                 writer.writeStartElement("channel");
                 // write channel elements
-                writeElementWithCDataIfNotNull(theChannel.getDescription(), "description", writer);
-                writeElementWithCDataIfNotNull(theChannel.getCopyright(), "copyright", writer);
-                writeElementWithCDataIfNotNull(theChannel.getLanguage(), "language", writer);
-                writeElementWithCDataIfNotNull(theChannel.getPubDate(), "pubDate", writer);
-                writeElementWithCDataIfNotNull(theChannel.getLink(), "link", writer);
-                writeElementWithCDataIfNotNull(theChannel.getTitle(), "title", writer);
+                writeChannel(theChannel, writer);
                 for (int i = 0; i < items.size(); i++) {
                     writeItem(items.get(i), writer);
                 }

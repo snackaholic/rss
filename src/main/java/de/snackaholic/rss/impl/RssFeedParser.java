@@ -19,16 +19,119 @@ import java.util.logging.Logger;
 
 /**
  * Implementation of the IFeedByURLProvider interface
+ * TODO write values for categorys (item) into multivaluemap and transform them to list
  */
 public class RssFeedParser implements IFeedByURLProvider {
 
     private static final Logger LOG = Logger.getLogger(RssFeedParser.class.getName());
-
     private final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
 
     public RssFeedParser() {
         super();
     }
+
+    /**
+     * TODO respect mandatory fields
+     * TODO handle missing mandatory fields via options for desired strategy
+     *
+     * @param itemCandidate
+     * @return whether or not the item is valid and fulfills the requirements
+     */
+    private boolean itemCandidateFulfillsRequirements(Item itemCandidate) {
+        return true;
+    }
+
+    /**
+     * Will transfer the values from the map to the channel
+     * @param theChannel the channel that should get the values from the map
+     * @param channelValueMap the map that contains the values for the channel. !lowercase keys!
+     */
+    private void patchChannelDataByValueMap(Channel theChannel, Map<String, String> channelValueMap) {
+        if (channelValueMap.containsKey("description")) {
+            theChannel.setDescription(channelValueMap.get("description"));
+        }
+        if (channelValueMap.containsKey("title")) {
+            theChannel.setTitle(channelValueMap.get("title"));
+        }
+        if (channelValueMap.containsKey("pubdate")) {
+            theChannel.setPubDate(channelValueMap.get("pubdate"));
+        }
+        if (channelValueMap.containsKey("copyright")) {
+            theChannel.setCopyright(channelValueMap.get("copyright"));
+        }
+        if (channelValueMap.containsKey("language")) {
+            theChannel.setLanguage(channelValueMap.get("language"));
+        }
+        if (channelValueMap.containsKey("link")) {
+            theChannel.setLink(channelValueMap.get("link"));
+        }
+        if (channelValueMap.containsKey("managingeditor")) {
+            theChannel.setManagingEditor(channelValueMap.get("managingeditor"));
+        }
+        if (channelValueMap.containsKey("webmaster")) {
+            theChannel.setWebMaster(channelValueMap.get("webmaster"));
+        }
+        if (channelValueMap.containsKey("lastbuilddate")) {
+            theChannel.setLastBuildDate(channelValueMap.get("lastbuilddate"));
+        }
+        if (channelValueMap.containsKey("generator")) {
+            theChannel.setGenerator(channelValueMap.get("generator"));
+        }
+        if (channelValueMap.containsKey("docs")) {
+            theChannel.setDocs(channelValueMap.get("docs"));
+        }
+        if (channelValueMap.containsKey("ttl")) {
+            theChannel.setTtl(channelValueMap.get("ttl"));
+        }
+        if (channelValueMap.containsKey("image")) {
+            theChannel.setImage(channelValueMap.get("image"));
+        }
+        if (channelValueMap.containsKey("rating")) {
+            theChannel.setRating(channelValueMap.get("rating"));
+        }
+    }
+
+    /**
+     * Will create a new item using a map; null if not all mandatory fields are provided.
+     * @param itemValueMap the map that holds the potential values. !lowercase keys!
+     * @return a new item - null if the item candidate does not fulfill all requirements
+     */
+    private Item getItemFromValueMap(Map<String, String> itemValueMap) {
+        Item newItem = new Item();
+        // add the values from the map
+        if (itemValueMap.containsKey("author")) {
+            newItem.setAuthor(itemValueMap.get("author"));
+        }
+        if (itemValueMap.containsKey("description")) {
+            newItem.setDescription(itemValueMap.get("description"));
+        }
+        if (itemValueMap.containsKey("enclosure")) {
+            newItem.setEnclosure(itemValueMap.get("enclosure"));
+        }
+        if (itemValueMap.containsKey("guid")) {
+            newItem.setGuid(itemValueMap.get("guid"));
+        }
+        if (itemValueMap.containsKey("title")) {
+            newItem.setTitle(itemValueMap.get("title"));
+        }
+        if (itemValueMap.containsKey("pubdate")) {
+            newItem.setPubDate(itemValueMap.get("pubdate"));
+        }
+        if (itemValueMap.containsKey("link")) {
+            newItem.setLink(itemValueMap.get("link"));
+        }
+        if (itemValueMap.containsKey("language")) {
+            newItem.setLanguage(itemValueMap.get("language"));
+        }
+        if (itemValueMap.containsKey("copyright")) {
+            newItem.setCopyright(itemValueMap.get("copyright"));
+        }
+        if (itemCandidateFulfillsRequirements(newItem)) {
+            return newItem;
+        }
+        return null;
+    }
+
 
     @Override
     public Feed provideFeedByURL(URL url) {
@@ -56,11 +159,11 @@ public class RssFeedParser implements IFeedByURLProvider {
                 // get the next element from the node
                 XMLEvent event = eventReader.nextEvent();
                 if (event.isStartElement()) {
-                    // get its tag
+                    // get the element name
                     String localPartStart = event.asStartElement().getName()
                             .getLocalPart();
                     // check if tag is item > we start creating items than
-                    if (localPartStart.toLowerCase().equals("item")) {
+                    if (localPartStart.equalsIgnoreCase("item")) {
                         firstItemAlreadyOccured = true;
                     }
                     LOG.log(Level.INFO, "GOT LOCAL START TAG NAME: " + localPartStart);
@@ -85,57 +188,25 @@ public class RssFeedParser implements IFeedByURLProvider {
                     String localPartEnd = event.asEndElement().getName().getLocalPart();
                     LOG.log(Level.INFO, "GOT LOCAL END TAG NAME: " + localPartEnd);
                     // handle end of item
-                    if (localPartEnd.toLowerCase().equals("item")) {
+                    if (localPartEnd.equalsIgnoreCase("item")) {
                         // create the item
-                        Item newItem = new Item();
-                        // add the values from the map
-                        if (itemValueMap.containsKey("author")) {
-                            newItem.setAuthor(itemValueMap.get("author"));
-                        }
-                        if (itemValueMap.containsKey("description")) {
-                            newItem.setDescription(itemValueMap.get("description"));
-                        }
-                        if (itemValueMap.containsKey("enclosure")) {
-                            newItem.setEnclosure(itemValueMap.get("enclosure"));
-                        }
-                        if (itemValueMap.containsKey("guid")) {
-                            newItem.setGuid(itemValueMap.get("guid"));
-                        }
-                        if (itemValueMap.containsKey("title")) {
-                            newItem.setTitle(itemValueMap.get("title"));
-                        }
-                        if (itemValueMap.containsKey("pubdate")) {
-                            newItem.setPubDate(itemValueMap.get("pubdate"));
-                        }
-                        // clear the item map
-                        itemValueMap = new HashMap<String, String>();
+                        Item newItem = getItemFromValueMap(itemValueMap);
                         // add the item to the list of items
-                        items.add(newItem);
+                        if (newItem != null) {
+                            items.add(newItem);
+                        }
+                        // clear the item map nonetheless
+                        itemValueMap = new HashMap<>();
                     }
                     // handle end of channel
-                    if (localPartEnd.toLowerCase().equals("channel")) {
-                        if (channelValueMap.containsKey("description")) {
-                            theChannel.setDescription(channelValueMap.get("description"));
-                        }
-                        if (channelValueMap.containsKey("title")) {
-                            theChannel.setTitle(channelValueMap.get("title"));
-                        }
-                        if (channelValueMap.containsKey("pubdate")) {
-                            theChannel.setPubDate(channelValueMap.get("pubdate"));
-                        }
-                        if (channelValueMap.containsKey("copyright")) {
-                            theChannel.setCopyright(channelValueMap.get("copyright"));
-                        }
-                        if (channelValueMap.containsKey("language")) {
-                            theChannel.setLanguage(channelValueMap.get("language"));
-                        }
-                        if (channelValueMap.containsKey("link")) {
-                            theChannel.setLink(channelValueMap.get("link"));
-                        }
+                    if (localPartEnd.equalsIgnoreCase("channel")) {
+                        patchChannelDataByValueMap(theChannel, channelValueMap);
+                        // clear the channelValueMap, although we only respect one channel at the moment
+                        channelValueMap = new HashMap<>();
                     }
                 }
             }
-            LOG.log(Level.INFO, "SUCESSFULLY PARSED " + items.size() + " ITEMS FOR FEED " + theParsedFeed.getUrl());
+            LOG.log(Level.INFO, "SUCCESSFULLY PARSED " + items.size() + " ITEMS FOR FEED " + theParsedFeed.getUrl());
             // close the reader
             eventReader.close();
             // close the inputstream
@@ -154,6 +225,12 @@ public class RssFeedParser implements IFeedByURLProvider {
         throw new RuntimeException("COULD NOT PARSE THAT FEED; ABORTING PROCESS");
     }
 
+    /**
+     * Provides inputstream by url
+     * @param url the url
+     * @return the stream
+     * @throws IOException
+     */
     private InputStream getInputStreamOfUrl(URL url) throws IOException {
         LOG.log(Level.INFO, "TRYING TO READ URL: " + url.toString());
         return url.openStream();

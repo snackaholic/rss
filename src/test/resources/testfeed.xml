@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- source: view-source:https://theroughcut.libsyn.com/rss  -->
+<!--
+        base source of this document was: https://theroughcut.libsyn.com/rss
+        I adjusted the document a bit to enable more tests with this doc. modifications are marked by comment
+-->
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:cc="http://web.resource.org/cc/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/" xmlns:content="http://purl.org/rss/1.0/modules/content/"  xmlns:podcast="https://podcastindex.org/namespace/1.0"  xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <channel>
         <atom:link href="https://theroughcut.libsyn.com/rss" rel="self" type="application/rss+xml"/>
@@ -35,9 +38,15 @@
         <itunes:type>episodic</itunes:type>
 
 
+        <!--
 
+           modification: added language and copyright for test
+
+        -->
 
         <item>
+            <language>en</language>
+            <copyright><![CDATA[© 2021 - The Rough Cut Studios]]></copyright>
             <title>Candyman</title>
             <itunes:title>Candyman</itunes:title>
             <pubDate>Mon, 20 Sep 2021 07:00:55 +0000</pubDate>

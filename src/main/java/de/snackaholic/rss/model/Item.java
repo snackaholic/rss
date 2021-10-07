@@ -5,20 +5,22 @@ import java.util.List;
 /**
  * Representation of an RSS item node <item></item>
  *
- * TODO enclose is own type with multiple attributes (url, length, type) -> own model
- * TODO add itunes http://www.itunes.com/dtds/podcast-1.0.dtd
- * TODO add google http://www.google.com/schemas/play-podcasts/1.0
+ *
+ * TODO: respect itunes doc http://www.itunes.com/dtds/podcast-1.0.dtd
+ * TODO: respect google doc http://www.google.com/schemas/play-podcasts/1.0
  * TODO: category has attribute domain -> own model
+ * TODO: enclose is own type with multiple attributes (url, length, type) -> own model
  */
 public class Item {
-
-    private String author;
+    // mandatory members according to rss specification
+    private String description;
+    private String link;
     private String title;
+    // optional members according to rss specification
+    private String author;
     private String pubDate;
     private String guid;
-    private String description;
     private String enclosure;
-    private String link;
     private String language;
     private String copyright;
     private List<String> categorys;
@@ -76,6 +78,38 @@ public class Item {
         this.enclosure = enclosure;
     }
 
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getCopyright() {
+        return copyright;
+    }
+
+    public void setCopyright(String copyright) {
+        this.copyright = copyright;
+    }
+
+    public List<String> getCategorys() {
+        return categorys;
+    }
+
+    public void setCategorys(List<String> categorys) {
+        this.categorys = categorys;
+    }
+
     @Override
     public String toString() {
         return "Item{" +
@@ -85,6 +119,9 @@ public class Item {
                 ", guid='" + guid + '\'' +
                 ", description='" + description + '\'' +
                 ", enclosure='" + enclosure + '\'' +
+                ", link='" + link + '\'' +
+                ", language='" + language + '\'' +
+                ", copyright='" + copyright + '\'' +
                 '}';
     }
 }

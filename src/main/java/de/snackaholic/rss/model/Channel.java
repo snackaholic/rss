@@ -5,12 +5,12 @@ import java.util.List;
 /**
  * Representation of an RSS 2.0 channel node
  * {@code}
- *  <channel>
- *    <link>mandatorylink<link>
- *    <title>mandatorytitle</title>
- *    <description>mandatorydescription</description>
- *    <item></item>
- *    <item></item>
+ * <channel>
+ * <link>mandatorylink<link>
+ * <title>mandatorytitle</title>
+ * <description>mandatorydescription</description>
+ * <item></item>
+ * <item></item>
  * </channel>
  * {@code}
  * TODO: pubdate, lastBuildDate are dates in format of RFC 822
@@ -21,24 +21,24 @@ import java.util.List;
 public class Channel {
 
     // mandatory members
-    private String title;
     private String description;
     private String link;
+    private String title;
     // optional members
-    private List<Item> items;
     private String language;
     private String copyright;
     private String managingEditor;
     private String pubDate;
     private String webMaster;
     private String lastBuildDate;
-    private List<String> categorys;
     private String generator;
     private String docs;
-    private List<String> cloud;
     private String ttl;
     private String image;
     private String rating;
+    private List<Item> items;
+    private List<String> cloud;
+    private List<String> categorys;
     private List<String> skipHours;
     private List<String> skipDays;
 
@@ -111,16 +111,111 @@ public class Channel {
         this.items = items;
     }
 
+    public String getWebMaster() {
+        return webMaster;
+    }
+
+    public void setWebMaster(String webMaster) {
+        this.webMaster = webMaster;
+    }
+
+    public String getLastBuildDate() {
+        return lastBuildDate;
+    }
+
+    public void setLastBuildDate(String lastBuildDate) {
+        this.lastBuildDate = lastBuildDate;
+    }
+
+    public List<String> getCategorys() {
+        return categorys;
+    }
+
+    public void setCategorys(List<String> categorys) {
+        this.categorys = categorys;
+    }
+
+    public String getGenerator() {
+        return generator;
+    }
+
+    public void setGenerator(String generator) {
+        this.generator = generator;
+    }
+
+    public String getDocs() {
+        return docs;
+    }
+
+    public void setDocs(String docs) {
+        this.docs = docs;
+    }
+
+    public List<String> getCloud() {
+        return cloud;
+    }
+
+    public void setCloud(List<String> cloud) {
+        this.cloud = cloud;
+    }
+
+    public String getTtl() {
+        return ttl;
+    }
+
+    public void setTtl(String ttl) {
+        this.ttl = ttl;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+    public List<String> getSkipHours() {
+        return skipHours;
+    }
+
+    public void setSkipHours(List<String> skipHours) {
+        this.skipHours = skipHours;
+    }
+
+    public List<String> getSkipDays() {
+        return skipDays;
+    }
+
+    public void setSkipDays(List<String> skipDays) {
+        this.skipDays = skipDays;
+    }
+
     @Override
     public String toString() {
         return "Channel{" +
                 "title='" + title + '\'' +
                 ", description='" + description + '\'' +
+                ", link='" + link + '\'' +
                 ", language='" + language + '\'' +
                 ", copyright='" + copyright + '\'' +
+                ", managingEditor='" + managingEditor + '\'' +
                 ", pubDate='" + pubDate + '\'' +
-                ", link='" + link + '\'' +
-                ", items=" + items +
+                ", webMaster='" + webMaster + '\'' +
+                ", lastBuildDate='" + lastBuildDate + '\'' +
+                ", generator='" + generator + '\'' +
+                ", docs='" + docs + '\'' +
+                ", ttl='" + ttl + '\'' +
+                ", image='" + image + '\'' +
+                ", rating='" + rating + '\'' +
                 '}';
     }
 }
