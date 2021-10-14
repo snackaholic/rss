@@ -14,9 +14,6 @@ import java.util.List;
  * </channel>
  * {@code}
  * TODO: pubdate, lastBuildDate are dates in format of RFC 822
- * TODO: category has attribute domain -> own model
- * TODO: cloud has attributes (domain, port, path, registerProcedure, protocol) -> own model
- * TODO: image has mandatory children(url, title, link ) and optional children (width, height, description) -> own model
  */
 public class Channel {
 
@@ -34,11 +31,11 @@ public class Channel {
     private String generator;
     private String docs;
     private String ttl;
-    private String image;
+    private Image image;
     private String rating;
     private List<Item> items;
-    private List<String> cloud;
-    private List<String> categorys;
+    private List<Cloud> cloud;
+    private List<Category> category;
     private List<String> skipHours;
     private List<String> skipDays;
 
@@ -127,12 +124,12 @@ public class Channel {
         this.lastBuildDate = lastBuildDate;
     }
 
-    public List<String> getCategorys() {
-        return categorys;
+    public List<Category> getCategory() {
+        return category;
     }
 
-    public void setCategorys(List<String> categorys) {
-        this.categorys = categorys;
+    public void setCategory(List<Category> category) {
+        this.category = category;
     }
 
     public String getGenerator() {
@@ -151,11 +148,11 @@ public class Channel {
         this.docs = docs;
     }
 
-    public List<String> getCloud() {
+    public List<Cloud> getCloud() {
         return cloud;
     }
 
-    public void setCloud(List<String> cloud) {
+    public void setCloud(List<Cloud> cloud) {
         this.cloud = cloud;
     }
 
@@ -167,11 +164,11 @@ public class Channel {
         this.ttl = ttl;
     }
 
-    public String getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 

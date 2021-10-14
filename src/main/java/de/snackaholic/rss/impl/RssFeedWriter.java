@@ -52,7 +52,7 @@ public class RssFeedWriter implements IFeedToStringWriter {
         writeElementWithCDataIfNotNull(item.getPubDate(), "pubDate", writer);
         writeElementWithCDataIfNotNull(item.getTitle(), "title", writer);
         writeElementWithCDataIfNotNull(item.getAuthor(), "author", writer);
-        writeElementWithCDataIfNotNull(item.getEnclosure(), "enclosure", writer);
+        // TODO fix me writeElementWithCDataIfNotNull(item.getEnclosure(), "enclosure", writer);
         writeElementWithCDataIfNotNull(item.getGuid(), "guid", writer);
         // close the item
         writer.writeEndElement();
@@ -71,8 +71,9 @@ public class RssFeedWriter implements IFeedToStringWriter {
         writeElementWithCDataIfNotNull(theChannel.getGenerator(), "generator", writer);
         writeElementWithCDataIfNotNull(theChannel.getDocs(), "docs", writer);
         writeElementWithCDataIfNotNull(theChannel.getTtl(), "ttl", writer);
-        writeElementWithCDataIfNotNull(theChannel.getImage(), "image", writer);
         writeElementWithCDataIfNotNull(theChannel.getRating(), "rating", writer);
+        // TODO fix me writeElementWithCDataIfNotNull(theChannel.getImage(), "image", writer);
+        // TODO write lists?!
     }
 
     @Override

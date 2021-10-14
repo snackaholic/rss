@@ -11,6 +11,7 @@ import java.net.URL;
  * {@code}
  */
 public class Feed {
+
     private URL url;
     private Channel channel;
 

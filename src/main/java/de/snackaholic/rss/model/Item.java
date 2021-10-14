@@ -8,10 +8,9 @@ import java.util.List;
  *
  * TODO: respect itunes doc http://www.itunes.com/dtds/podcast-1.0.dtd
  * TODO: respect google doc http://www.google.com/schemas/play-podcasts/1.0
- * TODO: category has attribute domain -> own model
- * TODO: enclose is own type with multiple attributes (url, length, type) -> own model
  */
 public class Item {
+
     // mandatory members according to rss specification
     private String description;
     private String link;
@@ -20,11 +19,10 @@ public class Item {
     private String author;
     private String pubDate;
     private String guid;
-    private String enclosure;
+    private Enclosure enclosure;
     private String language;
     private String copyright;
-    private List<String> categorys;
-
+    private List<Category> category;
 
     public Item() {
         super();
@@ -70,11 +68,11 @@ public class Item {
         this.description = description;
     }
 
-    public String getEnclosure() {
+    public Enclosure getEnclosure() {
         return enclosure;
     }
 
-    public void setEnclosure(String enclosure) {
+    public void setEnclosure(Enclosure enclosure) {
         this.enclosure = enclosure;
     }
 
@@ -102,12 +100,12 @@ public class Item {
         this.copyright = copyright;
     }
 
-    public List<String> getCategorys() {
-        return categorys;
+    public List<Category> getCategory() {
+        return category;
     }
 
-    public void setCategorys(List<String> categorys) {
-        this.categorys = categorys;
+    public void setCategory(List<Category> category) {
+        this.category = category;
     }
 
     @Override

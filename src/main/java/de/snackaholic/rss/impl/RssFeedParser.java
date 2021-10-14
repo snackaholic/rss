@@ -8,7 +8,9 @@ import de.snackaholic.rss.model.Item;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,9 +85,11 @@ public class RssFeedParser implements IFeedByURLProvider {
         if (channelValueMap.containsKey("ttl")) {
             theChannel.setTtl(channelValueMap.get("ttl"));
         }
+        /* TODO fix me
         if (channelValueMap.containsKey("image")) {
             theChannel.setImage(channelValueMap.get("image"));
         }
+        */
         if (channelValueMap.containsKey("rating")) {
             theChannel.setRating(channelValueMap.get("rating"));
         }
@@ -105,9 +109,11 @@ public class RssFeedParser implements IFeedByURLProvider {
         if (itemValueMap.containsKey("description")) {
             newItem.setDescription(itemValueMap.get("description"));
         }
+        /* TODO fix me
         if (itemValueMap.containsKey("enclosure")) {
             newItem.setEnclosure(itemValueMap.get("enclosure"));
         }
+        */
         if (itemValueMap.containsKey("guid")) {
             newItem.setGuid(itemValueMap.get("guid"));
         }
@@ -132,9 +138,19 @@ public class RssFeedParser implements IFeedByURLProvider {
         return null;
     }
 
+    private List<Attribute> getAttributes(StartElement startElement) {
+        List<Attribute> newElementAttributeList = new ArrayList<>();
+        Iterator<?> existingAttributesIterator = startElement.getAttributes();
+        while (existingAttributesIterator.hasNext()) {
+            Attribute attribute = (Attribute) existingAttributesIterator.next();
+            newElementAttributeList.add(attribute);
+        }
+        return newElementAttributeList;
+    }
 
     @Override
     public Feed provideFeedByURL(URL url) {
+        LOG.log(Level.INFO, "TRYING TO PARSE FEED BY URL: " + url.toString());
         // try to get the file by the url
         try {
             // the feed
@@ -148,6 +164,8 @@ public class RssFeedParser implements IFeedByURLProvider {
             Map<String, String> channelValueMap = new HashMap<String, String>();
             // the map for the value of one item
             Map<String, String> itemValueMap = new HashMap<String, String>();
+            // the attributes of the last start tag
+            List<Attribute> attributes;
             // flag whether or not we read <item> tag
             boolean firstItemAlreadyOccured = false;
             // get the inputstream
@@ -166,7 +184,10 @@ public class RssFeedParser implements IFeedByURLProvider {
                     if (localPartStart.equalsIgnoreCase("item")) {
                         firstItemAlreadyOccured = true;
                     }
-                    LOG.log(Level.INFO, "GOT LOCAL START TAG NAME: " + localPartStart);
+                    LOG.log(Level.INFO, " GOT LOCAL START TAG NAME: " + localPartStart);
+                    // try to extract list of attributes
+                    attributes = getAttributes(event.asStartElement());
+                    LOG.log(Level.INFO, localPartStart + " GOT " + attributes.size() + " ATTRIBUTES");
                     // get its data
                     XMLEvent nextEvent = eventReader.nextEvent();
                     if (nextEvent.isCharacters()) {
@@ -177,10 +198,10 @@ public class RssFeedParser implements IFeedByURLProvider {
                             // if we did not occure item yet
                             if (!firstItemAlreadyOccured) {
                                 // add data to channeldata
-                                channelValueMap.put(localPartStart.toLowerCase(), sdata);
+                                addElementDataToMap(channelValueMap, attributes, localPartStart, sdata);
                             } else {
-                                // otherwise it is definitely item data
-                                itemValueMap.put(localPartStart.toLowerCase(), sdata);
+                                // otherwise it is item data
+                                addElementDataToMap(itemValueMap, attributes, localPartStart, sdata);
                             }
                         }
                     }
@@ -223,6 +244,17 @@ public class RssFeedParser implements IFeedByURLProvider {
             LOG.log(Level.SEVERE, "EXCEPTION STREAMING THE XML", e);
         }
         throw new RuntimeException("COULD NOT PARSE THAT FEED; ABORTING PROCESS");
+    }
+
+    private void addElementDataToMap(Map<String, String> map, List<Attribute> attributes, String localPartStart, String text) {
+        String lowerLocalPartStart = localPartStart.toLowerCase();
+        map.put(lowerLocalPartStart, text);
+        if (attributes.size() != 0) {
+            for (int i = 0; i < attributes.size(); i++) {
+                Attribute attr = attributes.get(i);
+                map.put(lowerLocalPartStart +"$"+ attr.getName().getLocalPart().toLowerCase(), attr.getValue());
+            }
+        }
     }
 
     /**
