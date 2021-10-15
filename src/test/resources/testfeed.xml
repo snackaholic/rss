@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-        base source of this document was: https://theroughcut.libsyn.com/rss
+        source of this document was: https://theroughcut.libsyn.com/rss
         I adjusted the document a bit to enable more tests with this doc. modifications are marked by comment
 -->
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:cc="http://web.resource.org/cc/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/" xmlns:content="http://purl.org/rss/1.0/modules/content/"  xmlns:podcast="https://podcastindex.org/namespace/1.0"  xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -62,6 +62,11 @@
             <itunes:subtitle><![CDATA[Catrin Hedström]]></itunes:subtitle>
             <itunes:episodeType>full</itunes:episodeType>
             <itunes:author>Matt Feury</itunes:author>
+            <!-- added categorys -->
+            <category>dies</category>
+            <category>ist</category>
+            <category>ein</category>
+            <category>test</category>
         </item>
         <item>
             <title>A Black Lady Sketch Show</title>

@@ -16,7 +16,7 @@ package de.snackaholic.rss.model;
  *
  * Maximum value for height is 400, default value is 31.
  */
-public class Image {
+public class Image implements Cloneable {
     // mandatory members
     private String url;
     private String title;
@@ -76,5 +76,28 @@ public class Image {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        return "Image{" +
+                "url='" + url + '\'' +
+                ", title='" + title + '\'' +
+                ", link='" + link + '\'' +
+                ", description='" + description + '\'' +
+                ", width=" + width +
+                ", height=" + height +
+                '}';
+    }
+
+
+    @Override
+    public Image clone() {
+        try {
+            Image clone = (Image) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

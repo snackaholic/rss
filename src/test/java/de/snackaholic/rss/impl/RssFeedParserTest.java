@@ -1,12 +1,12 @@
 package de.snackaholic.rss.impl;
 
-import de.snackaholic.rss.model.Feed;
-import de.snackaholic.rss.model.Item;
+import de.snackaholic.rss.model.*;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +38,27 @@ public class RssFeedParserTest {
             Item firstItem = localTestFeed.getChannel().getItems().get(0);
             assertEquals("© 2021 - The Rough Cut Studios", firstItem.getCopyright());
             assertEquals("en", firstItem.getLanguage());
+            LOG.log(Level.INFO, "CHECKING FIRST ITEM ENCLOSURE:");
+            Enclosure firstItemEnclosure = firstItem.getEnclosure();
+            assertNotNull(firstItemEnclosure);
+            assertEquals("audio/mpeg", firstItemEnclosure.getType());
+            assertEquals("https://traffic.libsyn.com/secure/theroughcut/Candyman.mp3?dest-id=759218", firstItemEnclosure.getUrl());
+            assertEquals("33512576", firstItemEnclosure.getLength());
+            LOG.log(Level.INFO, "CHECKING FIRST ITEM CATEGORYS:");
+            List<Category> firstItemCategorys = firstItem.getCategory();
+            assertNotNull(firstItemCategorys);
+            String[] expectedCategoryValueStrings = new String[]{"dies", "ist", "ein", "test"};
+            for (int i = 0; i < firstItemCategorys.size(); i++) {
+                assertEquals(firstItemCategorys.get(i).getValue(), expectedCategoryValueStrings[i]);
+            }
+            LOG.log(Level.INFO, "CHECKING CHANNEL IMAGE");
+            Channel theChannel = localTestFeed.getChannel();
+            assertNotNull(theChannel);
+            Image theChannelImage = theChannel.getImage();
+            assertNotNull(theChannelImage);
+            assertEquals("The Rough Cut", theChannelImage.getTitle());
+            assertEquals("https://ssl-static.libsyn.com/p/assets/3/d/3/c/3d3ccf0b358691dcbafc7308ab683e82/New_Rough_Cut_Logo_Bladev2XX.jpg", theChannelImage.getUrl());
+            assertEquals("http://theroughcutpod.com", theChannel.getLink());
             LOG.log(Level.INFO, "TEST SUCCESSFUL: RssFeedParserTest - localParseTest");
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -47,7 +68,7 @@ public class RssFeedParserTest {
 
     /**
      * the same test for the same file but loaded via the http protocol from the github repo
-     * this should behave exactly the same as loading a local file
+     * this should behave exactly the same as loading a local file - make sure that if you adjust above test that you cannot copy the code to this method until it was pushed...
      */
     @Test
     public void remoteFileParseTest() {

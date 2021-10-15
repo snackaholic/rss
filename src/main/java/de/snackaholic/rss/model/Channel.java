@@ -31,8 +31,8 @@ public class Channel {
     private String generator;
     private String docs;
     private String ttl;
-    private Image image;
     private String rating;
+    private Image image;
     private List<Item> items;
     private List<Cloud> cloud;
     private List<Category> category;

@@ -1,9 +1,7 @@
 package de.snackaholic.rss.impl;
 
 import de.snackaholic.rss.api.IFeedByURLProvider;
-import de.snackaholic.rss.model.Channel;
-import de.snackaholic.rss.model.Feed;
-import de.snackaholic.rss.model.Item;
+import de.snackaholic.rss.model.*;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -21,7 +19,8 @@ import java.util.logging.Logger;
 
 /**
  * Implementation of the IFeedByURLProvider interface
- * TODO write values for categorys (item) into multivaluemap and transform them to list
+ * TODO write values for lists (channel)
+ * TODO extend DefaultHandler for event handling and use SAXParserFactory and Saxparser for this
  */
 public class RssFeedParser implements IFeedByURLProvider {
 
@@ -33,104 +32,137 @@ public class RssFeedParser implements IFeedByURLProvider {
     }
 
     /**
-     * TODO respect mandatory fields
-     * TODO handle missing mandatory fields via options for desired strategy
+     * Validates a potential item against mandatory fields.
      *
-     * @param itemCandidate
-     * @return whether or not the item is valid and fulfills the requirements
+     * @param itemCandidate the item
+     * @return whether the item is valid and fulfills the requirements
      */
     private boolean itemCandidateFulfillsRequirements(Item itemCandidate) {
-        return true;
+        if (itemCandidate.getDescription() != null && itemCandidate.getLink() != null && itemCandidate.getTitle() != null) {
+            return true;
+        } else {
+            LOG.severe("ITEM DID NOT FULFILL REQUIREMENTS; IGNORING IT: " + itemCandidate);
+            return false;
+        }
     }
 
     /**
      * Will transfer the values from the map to the channel
-     * @param theChannel the channel that should get the values from the map
+     *
+     * @param theChannel      the channel that should get the values from the map
      * @param channelValueMap the map that contains the values for the channel. !lowercase keys!
      */
-    private void patchChannelDataByValueMap(Channel theChannel, Map<String, String> channelValueMap) {
+    private void patchChannelDataByValueMap(Channel theChannel, Map<String, List<String>> channelValueMap) {
+        // transfer simple string values
         if (channelValueMap.containsKey("description")) {
-            theChannel.setDescription(channelValueMap.get("description"));
+            theChannel.setDescription(channelValueMap.get("description").get(0));
         }
         if (channelValueMap.containsKey("title")) {
-            theChannel.setTitle(channelValueMap.get("title"));
+            theChannel.setTitle(channelValueMap.get("title").get(0));
         }
         if (channelValueMap.containsKey("pubdate")) {
-            theChannel.setPubDate(channelValueMap.get("pubdate"));
+            theChannel.setPubDate(channelValueMap.get("pubdate").get(0));
         }
         if (channelValueMap.containsKey("copyright")) {
-            theChannel.setCopyright(channelValueMap.get("copyright"));
+            theChannel.setCopyright(channelValueMap.get("copyright").get(0));
         }
         if (channelValueMap.containsKey("language")) {
-            theChannel.setLanguage(channelValueMap.get("language"));
+            theChannel.setLanguage(channelValueMap.get("language").get(0));
         }
         if (channelValueMap.containsKey("link")) {
-            theChannel.setLink(channelValueMap.get("link"));
+            theChannel.setLink(channelValueMap.get("link").get(0));
         }
         if (channelValueMap.containsKey("managingeditor")) {
-            theChannel.setManagingEditor(channelValueMap.get("managingeditor"));
+            theChannel.setManagingEditor(channelValueMap.get("managingeditor").get(0));
         }
         if (channelValueMap.containsKey("webmaster")) {
-            theChannel.setWebMaster(channelValueMap.get("webmaster"));
+            theChannel.setWebMaster(channelValueMap.get("webmaster").get(0));
         }
         if (channelValueMap.containsKey("lastbuilddate")) {
-            theChannel.setLastBuildDate(channelValueMap.get("lastbuilddate"));
+            theChannel.setLastBuildDate(channelValueMap.get("lastbuilddate").get(0));
         }
         if (channelValueMap.containsKey("generator")) {
-            theChannel.setGenerator(channelValueMap.get("generator"));
+            theChannel.setGenerator(channelValueMap.get("generator").get(0));
         }
         if (channelValueMap.containsKey("docs")) {
-            theChannel.setDocs(channelValueMap.get("docs"));
+            theChannel.setDocs(channelValueMap.get("docs").get(0));
         }
         if (channelValueMap.containsKey("ttl")) {
-            theChannel.setTtl(channelValueMap.get("ttl"));
+            theChannel.setTtl(channelValueMap.get("ttl").get(0));
         }
-        /* TODO fix me
-        if (channelValueMap.containsKey("image")) {
-            theChannel.setImage(channelValueMap.get("image"));
-        }
-        */
         if (channelValueMap.containsKey("rating")) {
-            theChannel.setRating(channelValueMap.get("rating"));
+            theChannel.setRating(channelValueMap.get("rating").get(0));
         }
+        // TODO SET LISTS
     }
 
     /**
      * Will create a new item using a map; null if not all mandatory fields are provided.
+     *
      * @param itemValueMap the map that holds the potential values. !lowercase keys!
      * @return a new item - null if the item candidate does not fulfill all requirements
      */
-    private Item getItemFromValueMap(Map<String, String> itemValueMap) {
+    private Item getItemFromValueMap(Map<String, List<String>> itemValueMap) {
         Item newItem = new Item();
-        // add the values from the map
-        if (itemValueMap.containsKey("author")) {
-            newItem.setAuthor(itemValueMap.get("author"));
-        }
         if (itemValueMap.containsKey("description")) {
-            newItem.setDescription(itemValueMap.get("description"));
-        }
-        /* TODO fix me
-        if (itemValueMap.containsKey("enclosure")) {
-            newItem.setEnclosure(itemValueMap.get("enclosure"));
-        }
-        */
-        if (itemValueMap.containsKey("guid")) {
-            newItem.setGuid(itemValueMap.get("guid"));
+            newItem.setDescription(itemValueMap.get("description").get(0));
         }
         if (itemValueMap.containsKey("title")) {
-            newItem.setTitle(itemValueMap.get("title"));
-        }
-        if (itemValueMap.containsKey("pubdate")) {
-            newItem.setPubDate(itemValueMap.get("pubdate"));
+            newItem.setTitle(itemValueMap.get("title").get(0));
         }
         if (itemValueMap.containsKey("link")) {
-            newItem.setLink(itemValueMap.get("link"));
+            newItem.setLink(itemValueMap.get("link").get(0));
+        }
+        if (itemValueMap.containsKey("author")) {
+            newItem.setAuthor(itemValueMap.get("author").get(0));
+        }
+        if (itemValueMap.containsKey("guid")) {
+            newItem.setGuid(itemValueMap.get("guid").get(0));
+        }
+        if (itemValueMap.containsKey("pubdate")) {
+            newItem.setPubDate(itemValueMap.get("pubdate").get(0));
         }
         if (itemValueMap.containsKey("language")) {
-            newItem.setLanguage(itemValueMap.get("language"));
+            newItem.setLanguage(itemValueMap.get("language").get(0));
         }
         if (itemValueMap.containsKey("copyright")) {
-            newItem.setCopyright(itemValueMap.get("copyright"));
+            newItem.setCopyright(itemValueMap.get("copyright").get(0));
+        }
+        if (itemValueMap.containsKey("enclosure$url")) {
+            String url = null;
+            String length = null;
+            String type = null;
+            if (itemValueMap.containsKey("enclosure$url")) {
+                url = itemValueMap.get("enclosure$url").get(0);
+            }
+            if (itemValueMap.containsKey("enclosure$length")) {
+                length = itemValueMap.get("enclosure$length").get(0);
+            }
+            if (itemValueMap.containsKey("enclosure$type")) {
+                type = itemValueMap.get("enclosure$type").get(0);
+            }
+            if (url != null && length != null && type != null) {
+                Enclosure enc = new Enclosure();
+                enc.setUrl(url);
+                enc.setLength(length);
+                enc.setType(type);
+                newItem.setEnclosure(enc);
+            }
+        }
+        if (itemValueMap.containsKey("category")) {
+            List<String> categoryStrings = itemValueMap.get("category");
+            if (categoryStrings.size() > 0) {
+                List<Category> itemCategoryList = new ArrayList<>();
+                for (String categoryString : categoryStrings) {
+                    Category newCat = new Category();
+                    String catValue = categoryString.trim().replaceAll("\n$", "");
+                    if (catValue.length() > 0) {
+                        newCat.setValue(categoryString);
+                        itemCategoryList.add(newCat);
+                    }
+                }
+                newItem.setCategory(itemCategoryList);
+            }
         }
         if (itemCandidateFulfillsRequirements(newItem)) {
             return newItem;
@@ -150,7 +182,7 @@ public class RssFeedParser implements IFeedByURLProvider {
 
     @Override
     public Feed provideFeedByURL(URL url) {
-        LOG.log(Level.INFO, "TRYING TO PARSE FEED BY URL: " + url.toString());
+        LOG.info("TRYING TO PARSE FEED BY URL: " + url.toString());
         // try to get the file by the url
         try {
             // the feed
@@ -159,57 +191,84 @@ public class RssFeedParser implements IFeedByURLProvider {
             // the channel of the feed
             Channel theChannel = new Channel();
             // the list of items
-            List<Item> items = new ArrayList<Item>();
+            List<Item> items = new ArrayList<>();
             // the map for the value of channel
-            Map<String, String> channelValueMap = new HashMap<String, String>();
+            Map<String, List<String>> channelValueMap = new HashMap<>();
             // the map for the value of one item
-            Map<String, String> itemValueMap = new HashMap<String, String>();
+            Map<String, List<String>> itemValueMap = new HashMap<>();
+            // the map for the attributes of an image
+            Map<String, List<String>> imageValueMap = new HashMap<>();
+            // the image that is currently read by the parser
+            Image image = new Image();
             // the attributes of the last start tag
             List<Attribute> attributes;
-            // flag whether or not we read <item> tag
+            // flag whether we read <item> tag
             boolean firstItemAlreadyOccured = false;
-            // get the inputstream
+            boolean inImage = false;
+            boolean lastEventWasClosingEvent = false;
+            String currentElementName = "";
             InputStream fileInputStream = getInputStreamOfUrl(url);
-            // open up eventreader to stream the provided xml
             XMLEventReader eventReader = inputFactory.createXMLEventReader(fileInputStream);
-            // read the XML document
             while (eventReader.hasNext()) {
                 // get the next element from the node
                 XMLEvent event = eventReader.nextEvent();
+                // handle each event diffrently
                 if (event.isStartElement()) {
+                    lastEventWasClosingEvent = false;
                     // get the element name
-                    String localPartStart = event.asStartElement().getName()
+                    currentElementName = event.asStartElement().getName()
                             .getLocalPart();
-                    // check if tag is item > we start creating items than
-                    if (localPartStart.equalsIgnoreCase("item")) {
+                    // check if tag is item or image > we start creating item / image than
+                    if (currentElementName.equalsIgnoreCase("item")) {
                         firstItemAlreadyOccured = true;
+                    } else if (currentElementName.equalsIgnoreCase("image")) {
+                        inImage = true;
                     }
-                    LOG.log(Level.INFO, " GOT LOCAL START TAG NAME: " + localPartStart);
+                    LOG.info(" GOT LOCAL START TAG NAME: " + currentElementName);
                     // try to extract list of attributes
                     attributes = getAttributes(event.asStartElement());
-                    LOG.log(Level.INFO, localPartStart + " GOT " + attributes.size() + " ATTRIBUTES");
-                    // get its data
-                    XMLEvent nextEvent = eventReader.nextEvent();
-                    if (nextEvent.isCharacters()) {
-                        Characters data = nextEvent.asCharacters();
-                        if (!data.isIgnorableWhiteSpace()) {
-                            String sdata = data.toString();
-                            LOG.log(Level.INFO, "GOT DATA: " + sdata);
-                            // if we did not occure item yet
+                    LOG.info(currentElementName + " GOT " + attributes.size() + " ATTRIBUTES");
+                    // add them to the correct map
+                    if (attributes.size() > 0) {
+                        if (inImage) {
+                            addAttributesToMap(imageValueMap, attributes, currentElementName);
+                        } else {
+                            // we are processing the channel
                             if (!firstItemAlreadyOccured) {
-                                // add data to channeldata
-                                addElementDataToMap(channelValueMap, attributes, localPartStart, sdata);
+                                addAttributesToMap(channelValueMap, attributes, currentElementName);
                             } else {
-                                // otherwise it is item data
-                                addElementDataToMap(itemValueMap, attributes, localPartStart, sdata);
+                                // we are processing an item
+                                addAttributesToMap(itemValueMap, attributes, currentElementName);
                             }
                         }
                     }
                 } else if (event.isEndElement()) {
-                    String localPartEnd = event.asEndElement().getName().getLocalPart();
-                    LOG.log(Level.INFO, "GOT LOCAL END TAG NAME: " + localPartEnd);
+                    lastEventWasClosingEvent = true;
+                    currentElementName = event.asEndElement().getName().getLocalPart();
+                    LOG.info("GOT LOCAL END TAG NAME: " + currentElementName);
+                    // handle end of image tag
+                    if (currentElementName.equalsIgnoreCase("image")) {
+                        inImage = false;
+                        // TODO add image to the item -> see itunes / google for possible attr
+                        // TODO handle attributes
+                        // TODO hanlde single item image
+                        // TODO it looks like there can be mutliple images...
+                        if (!firstItemAlreadyOccured) {
+                            if (theChannel.getImage() == null) {
+                                LOG.info("SETTING IMAGE FOR CHANNEL" + image);
+                                theChannel.setImage(image.clone());
+                            } else {
+                                LOG.severe("DID NOT OVERWRITE IMAGE FOR CHANNEL WITH FOLLOWING IMAGE:" + image);
+                            }
+
+                        }
+                        // reset the image
+                        image = new Image();
+                        LOG.info("IMAGE FROM CHANNEL NOW HAS VALUE" + theChannel.getImage());
+                        imageValueMap = new HashMap<>();
+                    }
                     // handle end of item
-                    if (localPartEnd.equalsIgnoreCase("item")) {
+                    if (currentElementName.equalsIgnoreCase("item")) {
                         // create the item
                         Item newItem = getItemFromValueMap(itemValueMap);
                         // add the item to the list of items
@@ -220,14 +279,52 @@ public class RssFeedParser implements IFeedByURLProvider {
                         itemValueMap = new HashMap<>();
                     }
                     // handle end of channel
-                    if (localPartEnd.equalsIgnoreCase("channel")) {
+                    if (currentElementName.equalsIgnoreCase("channel")) {
                         patchChannelDataByValueMap(theChannel, channelValueMap);
                         // clear the channelValueMap, although we only respect one channel at the moment
                         channelValueMap = new HashMap<>();
                     }
+                } else if (event.isCharacters()) {
+                    // we ignore text after closing element
+                    if (lastEventWasClosingEvent) {
+                        lastEventWasClosingEvent = false;
+                    } else {
+                        Characters data = event.asCharacters();
+                        if (!data.isIgnorableWhiteSpace()) {
+                            String characterData = data.toString();
+                            LOG.info("GOT CHARACTER DATA: " + characterData);
+                            // check if we are in channel, item, or image right now
+                            if (inImage) {
+                                LOG.info("IN IMAGE SETTING IMAGE DATA: " + characterData);
+                                if (currentElementName.equalsIgnoreCase("title")) {
+                                    image.setTitle(characterData);
+                                } else if (currentElementName.equalsIgnoreCase("link")) {
+                                    image.setLink(characterData);
+                                } else if (currentElementName.equalsIgnoreCase("description")) {
+                                    image.setDescription(characterData);
+                                } else if (currentElementName.equalsIgnoreCase("width")) {
+                                    image.setWidth(Integer.parseInt(characterData));
+                                } else if (currentElementName.equalsIgnoreCase("height")) {
+                                    image.setHeight(Integer.parseInt(characterData));
+                                } else if (currentElementName.equalsIgnoreCase("url")) {
+                                    image.setUrl(characterData);
+                                }
+                                LOG.info("IMAGE HAS NOW FOLLWING DATA " + image);
+                            } else {
+                                // if we did not occur item yet
+                                if (!firstItemAlreadyOccured) {
+                                    // add data to channeldatamap
+                                    addCharacterDataToMap(channelValueMap, currentElementName, characterData);
+                                } else {
+                                    // otherwise, it is item data
+                                    addCharacterDataToMap(itemValueMap, currentElementName, characterData);
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            LOG.log(Level.INFO, "SUCCESSFULLY PARSED " + items.size() + " ITEMS FOR FEED " + theParsedFeed.getUrl());
+            LOG.info("SUCCESSFULLY PARSED " + items.size() + " ITEMS FOR FEED " + theParsedFeed.getUrl());
             // close the reader
             eventReader.close();
             // close the inputstream
@@ -246,25 +343,44 @@ public class RssFeedParser implements IFeedByURLProvider {
         throw new RuntimeException("COULD NOT PARSE THAT FEED; ABORTING PROCESS");
     }
 
-    private void addElementDataToMap(Map<String, String> map, List<Attribute> attributes, String localPartStart, String text) {
-        String lowerLocalPartStart = localPartStart.toLowerCase();
-        map.put(lowerLocalPartStart, text);
-        if (attributes.size() != 0) {
-            for (int i = 0; i < attributes.size(); i++) {
-                Attribute attr = attributes.get(i);
-                map.put(lowerLocalPartStart +"$"+ attr.getName().getLocalPart().toLowerCase(), attr.getValue());
+    private void addAttributesToMap(Map<String, List<String>> map, List<Attribute> attributes, String prefix) {
+        if (prefix != null) {
+            prefix = prefix.toLowerCase();
+            if (attributes.size() != 0) {
+                for (Attribute attr : attributes) {
+                    String key = prefix + "$" + attr.getName().getLocalPart().toLowerCase();
+                    if (!map.containsKey(key)) {
+                        map.put(key, new ArrayList<>());
+                    }
+                    ArrayList<String> l = (ArrayList<String>) map.get(key);
+                    l.add(attr.getValue());
+                    map.put(key, l);
+                }
             }
+        }
+    }
+
+    private void addCharacterDataToMap(Map<String, List<String>> map, String localPartStart, String text) {
+        String lowerLocalPartStart = localPartStart.toLowerCase();
+        if (text.length() > 0) {
+            if (!map.containsKey(lowerLocalPartStart)) {
+                map.put(lowerLocalPartStart, new ArrayList<>());
+            }
+            ArrayList<String> l = (ArrayList<String>) map.get(lowerLocalPartStart);
+            l.add(text);
+            map.put(lowerLocalPartStart, l);
         }
     }
 
     /**
      * Provides inputstream by url
+     *
      * @param url the url
      * @return the stream
-     * @throws IOException
+     * @throws IOException when something goes wrong opening the stream
      */
     private InputStream getInputStreamOfUrl(URL url) throws IOException {
-        LOG.log(Level.INFO, "TRYING TO READ URL: " + url.toString());
+        LOG.info("TRYING TO READ URL: " + url.toString());
         return url.openStream();
     }
 }
