@@ -8,6 +8,7 @@ import java.util.List;
  *
  * TODO: respect itunes doc http://www.itunes.com/dtds/podcast-1.0.dtd
  * TODO: respect google doc http://www.google.com/schemas/play-podcasts/1.0
+ * TODO: guid has attribute isPermaLink > own obj
  */
 public class Item {
 

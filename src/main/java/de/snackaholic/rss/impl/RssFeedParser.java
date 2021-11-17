@@ -260,7 +260,6 @@ public class RssFeedParser implements IFeedByURLProvider {
                             } else {
                                 LOG.severe("DID NOT OVERWRITE IMAGE FOR CHANNEL WITH FOLLOWING IMAGE:" + image);
                             }
-
                         }
                         // reset the image
                         image = new Image();

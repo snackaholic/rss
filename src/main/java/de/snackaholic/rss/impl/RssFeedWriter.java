@@ -100,7 +100,6 @@ public class RssFeedWriter implements IRssFeedWriter {
             safeWriteAttribute(cloud.getProtocol(), "protocol", writer);
             safeWriteAttribute(cloud.getRegisterProcedure(), "registerProcedure", writer);
             safeWriteAttribute(String.valueOf(cloud.getPort()), "port", writer);
-            writer.writeEndElement();
         } catch (XMLStreamException xmlStreamException) {
             xmlStreamException.printStackTrace();
         }

@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<rss version="2.0">
+    <channel>
+        <description><![CDATA[channel description]]></description>
+        <link><![CDATA[channel link]]></link>
+        <title><![CDATA[channel title]]></title>
+        <language><![CDATA[channel language]]></language>
+        <copyright><![CDATA[channel copyright]]></copyright>
+        <managingEditor><![CDATA[channel managingEditor]]></managingEditor>
+        <pubDate><![CDATA[channel pubdate]]></pubDate>
+        <webMaster><![CDATA[channel webMaster]]></webMaster>
+        <lastBuildDate><![CDATA[channel lastBuildDate]]></lastBuildDate>
+        <generator><![CDATA[channel generator]]></generator>
+        <docs><![CDATA[channel docs]]></docs>
+        <ttl><![CDATA[channel ttl]]></ttl>
+        <rating><![CDATA[channel rating]]></rating>
+        <image>
+            <url><![CDATA[image url]]></url>
+            <title><![CDATA[image title]]></title>
+            <link><![CDATA[image link]]></link>
+            <description><![CDATA[image description]]></description>
+            <width><![CDATA[200]]></width>
+            <height><![CDATA[200]]></height>
+        </image>
+        <cloud domain="cloud domain" path="cloud path" protocol="cloud protocol"
+               registerProcedure="cloud register procedure" port="123"/>
+        <cloud domain="cloud domain" path="cloud path" protocol="cloud protocol"
+               registerProcedure="cloud register procedure" port="123"/>
+        <category domain="category domain">category value</category>
+        <category domain="category domain">category value</category>
+        <skipHours>
+            <hour><![CDATA[1]]></hour>
+            <hour><![CDATA[23]]></hour>
+        </skipHours>
+        <skipDays>
+            <day><![CDATA[Monday]]></day>
+            <day><![CDATA[Friday]]></day>
+        </skipDays>
+        <item>
+            <description><![CDATA[item description]]></description>
+            <title><![CDATA[item title]]></title>
+            <link><![CDATA[item link]]></link>
+            <enclosure url="enclosure url" length="enclosure length" type="enclosure type"/>
+            <category domain="category domain">category value</category>
+            <category domain="category domain">category value</category>
+            <author><![CDATA[item author]]></author>
+            <copyright><![CDATA[item copyright]]></copyright>
+            <guid><![CDATA[item guid]]></guid>
+            <language><![CDATA[item language]]></language>
+            <pubDate><![CDATA[item pubDate]]></pubDate>
+        </item>
+        <item>
+            <description><![CDATA[item description]]></description>
+            <title><![CDATA[item title]]></title>
+            <link><![CDATA[item link]]></link>
+            <enclosure url="enclosure url" length="enclosure length" type="enclosure type"/>
+            <category domain="category domain">category value</category>
+            <category domain="category domain">category value</category>
+            <author><![CDATA[item author]]></author>
+            <copyright><![CDATA[item copyright]]></copyright>
+            <guid><![CDATA[item guid]]></guid>
+            <language><![CDATA[item language]]></language>
+            <pubDate><![CDATA[item pubDate]]></pubDate>
+        </item>
+    </channel>
+</rss>
