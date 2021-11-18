@@ -2,9 +2,9 @@ package de.snackaholic.rss.api;
 
 import de.snackaholic.rss.model.*;
 
-import javax.xml.stream.XMLStreamException;
-
-
+/**
+ * The desired functionality of a rss feed writer
+ */
 public interface IRssFeedWriter {
 
     /**
@@ -14,13 +14,39 @@ public interface IRssFeedWriter {
      */
     String writeFeedToString(Feed feed);
 
+    /**
+     * Writes the image
+     * @param image the image that shall be written
+     */
     void writeImage(Image image);
 
+    /**
+     * Writes the item
+     * @param item the item that shall be written
+     */
     void writeItem(Item item);
 
+    /**
+     * Writes the enclosure
+     * @param enclosure the enclosure that shall be written
+     */
     void writeEnclosure(Enclosure enclosure);
 
+    /**
+     * Writes the cloud
+     * @param cloud the cloud that shall be written
+     */
     void writeCloud(Cloud cloud);
 
-    void writeCategory(Category category) throws XMLStreamException;
+    /**
+     * Writes the category
+     * @param category the category that shall be written
+     */
+    void writeCategory(Category category);
+
+    /**
+     * Writes the channel
+     * @param channel the channel that shall be written
+     */
+    void writeChannel(Channel channel);
 }

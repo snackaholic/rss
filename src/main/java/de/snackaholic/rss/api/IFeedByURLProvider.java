@@ -4,6 +4,9 @@ import de.snackaholic.rss.model.Feed;
 
 import java.net.URL;
 
+/**
+ * The desired functionality of a url to feed transformer
+ */
 public interface IFeedByURLProvider {
 
     /**

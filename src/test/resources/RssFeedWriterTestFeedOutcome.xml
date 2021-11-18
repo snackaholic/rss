@@ -26,8 +26,8 @@
                registerProcedure="cloud register procedure" port="123"/>
         <cloud domain="cloud domain" path="cloud path" protocol="cloud protocol"
                registerProcedure="cloud register procedure" port="123"/>
-        <category domain="category domain">category value</category>
-        <category domain="category domain">category value</category>
+        <category domain="category domain"><![CDATA[category value]]></category>
+        <category domain="category domain"><![CDATA[category value]]></category>
         <skipHours>
             <hour><![CDATA[1]]></hour>
             <hour><![CDATA[23]]></hour>
@@ -41,8 +41,8 @@
             <title><![CDATA[item title]]></title>
             <link><![CDATA[item link]]></link>
             <enclosure url="enclosure url" length="enclosure length" type="enclosure type"/>
-            <category domain="category domain">category value</category>
-            <category domain="category domain">category value</category>
+            <category domain="category domain"><![CDATA[category value]]></category>
+            <category domain="category domain"><![CDATA[category value]]></category>
             <author><![CDATA[item author]]></author>
             <copyright><![CDATA[item copyright]]></copyright>
             <guid><![CDATA[item guid]]></guid>
@@ -54,8 +54,8 @@
             <title><![CDATA[item title]]></title>
             <link><![CDATA[item link]]></link>
             <enclosure url="enclosure url" length="enclosure length" type="enclosure type"/>
-            <category domain="category domain">category value</category>
-            <category domain="category domain">category value</category>
+            <category domain="category domain"><![CDATA[category value]]></category>
+            <category domain="category domain"><![CDATA[category value]]></category>
             <author><![CDATA[item author]]></author>
             <copyright><![CDATA[item copyright]]></copyright>
             <guid><![CDATA[item guid]]></guid>

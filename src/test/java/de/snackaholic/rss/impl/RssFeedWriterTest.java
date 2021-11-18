@@ -3,7 +3,7 @@ package de.snackaholic.rss.impl;
 import de.snackaholic.rss.model.*;
 import org.junit.Test;
 
-import java.sql.Array;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -11,10 +11,13 @@ import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Testclass for the implementation of the IRssFeedWriter interface
+ */
 public class RssFeedWriterTest {
 
     private final Logger LOG = Logger.getLogger(RssFeedWriterTest.class.getName());
-    private final RssFeedWriter writer = new RssFeedWriter();
+    private final RssFeedWriter writer = new RssFeedWriter(new StringWriter(), true);
 
     public RssFeedWriterTest() {
         super();
@@ -137,6 +140,111 @@ public class RssFeedWriterTest {
         return testImage;
     }
 
+    private String tagWithValue(String tag, String value) {
+        return "<" + tag + ">" + value + "</" + tag + ">";
+    }
+
+    @Test
+    public void writeImage() {
+        StringWriter sw = new StringWriter();
+        RssFeedWriter rssFeedWriter = new RssFeedWriter(sw, false);
+        rssFeedWriter.writeImage(provideTestImage());
+        sw.flush();
+        String imageAsXml = sw.toString();
+        assertNotNull(imageAsXml);
+        LOG.info(imageAsXml);
+        assertTrue(imageAsXml.contains(tagWithValue("description", "image description")));
+        assertTrue(imageAsXml.contains(tagWithValue("link", "image link")));
+        assertTrue(imageAsXml.contains(tagWithValue("title", "image title")));
+        assertTrue(imageAsXml.contains(tagWithValue("width", "200")));
+        assertTrue(imageAsXml.contains(tagWithValue("height", "200")));
+    }
+
+    @Test
+    public void writeItem() {
+        StringWriter sw = new StringWriter();
+        RssFeedWriter rssFeedWriter = new RssFeedWriter(sw, false);
+        rssFeedWriter.writeItem(provideTestItem());
+        sw.flush();
+        String itemAsXml = sw.toString();
+        assertNotNull(itemAsXml);
+        LOG.info(itemAsXml);
+        assertTrue(itemAsXml.contains(tagWithValue("description", "item description")));
+        assertTrue(itemAsXml.contains(tagWithValue("link", "item link")));
+        assertTrue(itemAsXml.contains(tagWithValue("title", "item title")));
+        assertTrue(itemAsXml.contains(tagWithValue("author", "item author")));
+        assertTrue(itemAsXml.contains(tagWithValue("copyright", "item copyright")));
+        assertTrue(itemAsXml.contains(tagWithValue("guid", "item guid")));
+        assertTrue(itemAsXml.contains(tagWithValue("language", "item language")));
+        assertTrue(itemAsXml.contains(tagWithValue("pubDate", "item pubDate")));
+        assertTrue(itemAsXml.contains("<category domain=\"category domain\">category value</category>"));
+        assertTrue(itemAsXml.contains("<enclosure url=\"enclosure url\" length=\"enclosure length\" type=\"enclosure type\"/>"));
+    }
+
+    @Test
+    public void writeEnclosure() {
+        StringWriter sw = new StringWriter();
+        RssFeedWriter rssFeedWriter = new RssFeedWriter(sw, false);
+        rssFeedWriter.writeEnclosure(provideTestEnclosure());
+        sw.flush();
+        String enclosureAsXml = sw.toString();
+        assertNotNull(enclosureAsXml);
+        LOG.info(enclosureAsXml);
+        assertTrue(enclosureAsXml.contains("enclosure url=\"enclosure url\" length=\"enclosure length\" type=\"enclosure type\""));
+    }
+
+    @Test
+    public void writeCloud() {
+        StringWriter sw = new StringWriter();
+        RssFeedWriter rssFeedWriter = new RssFeedWriter(sw, false);
+        rssFeedWriter.writeCloud(provideTestCloud());
+        sw.flush();
+        String cloudAsXML = sw.toString();
+        assertNotNull(cloudAsXML);
+        LOG.info(cloudAsXML);
+        assertTrue(cloudAsXML.contains("cloud domain=\"cloud domain\" path=\"cloud path\" protocol=\"cloud protocol\" registerProcedure=\"cloud register procedure\" port=\"123\""));
+    }
+
+    @Test
+    public void writeCategory() {
+        StringWriter sw = new StringWriter();
+        RssFeedWriter rssFeedWriter = new RssFeedWriter(sw, false);
+        rssFeedWriter.writeCategory(provideTestCategory());
+        sw.flush();
+        String categoryAsXML = sw.toString();
+        assertNotNull(categoryAsXML);
+        LOG.info(categoryAsXML);
+        assertTrue(categoryAsXML.equals("<category domain=\"category domain\">category value</category>"));
+    }
+
+    @Test
+    public void writeChannel() {
+        StringWriter sw = new StringWriter();
+        RssFeedWriter rssFeedWriter = new RssFeedWriter(sw, false);
+        rssFeedWriter.writeChannel(provideTestChannel());
+        sw.flush();
+        String channelAsXML = sw.toString();
+        assertNotNull(channelAsXML);
+        LOG.info(channelAsXML);
+        assertTrue(channelAsXML.contains(tagWithValue("description", "channel description")));
+        assertTrue(channelAsXML.contains(tagWithValue("link", "channel link")));
+        assertTrue(channelAsXML.contains(tagWithValue("title", "channel title")));
+        assertTrue(channelAsXML.contains(tagWithValue("language", "channel language")));
+        assertTrue(channelAsXML.contains(tagWithValue("copyright", "channel copyright")));
+        assertTrue(channelAsXML.contains(tagWithValue("managingEditor", "channel managingEditor")));
+        assertTrue(channelAsXML.contains(tagWithValue("pubDate", "channel pubdate")));
+        assertTrue(channelAsXML.contains(tagWithValue("webMaster", "channel webMaster")));
+        assertTrue(channelAsXML.contains(tagWithValue("lastBuildDate", "channel lastBuildDate")));
+        assertTrue(channelAsXML.contains(tagWithValue("generator", "channel generator")));
+        assertTrue(channelAsXML.contains(tagWithValue("docs", "channel docs")));
+        assertTrue(channelAsXML.contains(tagWithValue("ttl", "channel ttl")));
+        assertTrue(channelAsXML.contains(tagWithValue("rating", "channel rating")));
+        assertTrue(channelAsXML.contains(tagWithValue("skipHours", "<hour>1</hour><hour>23</hour>")));
+        assertTrue(channelAsXML.contains(tagWithValue("skipDays", "<day>Monday</day><day>Friday</day>")));
+        assertTrue(channelAsXML.contains("<category domain=\"category domain\">category value</category>"));
+        assertTrue(channelAsXML.contains("<cloud domain=\"cloud domain\" path=\"cloud path\" protocol=\"cloud protocol\" registerProcedure=\"cloud register procedure\" port=\"123\"/>"));
+    }
+
     @Test
     public void writeFeedToString() {
         LOG.log(Level.INFO, "STARTING TEST: RssFeedWriterTest - localWriteTest");
@@ -147,8 +255,7 @@ public class RssFeedWriterTest {
         assertNotEquals(output.length(), 0);
         // check if the set contents are within the xml
         assertTrue(output.contains(""));
-        assertEquals("<?xml version=\"1.0\" ?><rss version=\"2.0\"><channel><description><![CDATA[channel description]]></description><link><![CDATA[channel link]]></link><title><![CDATA[channel title]]></title><language><![CDATA[channel language]]></language><copyright><![CDATA[channel copyright]]></copyright><managingEditor><![CDATA[channel managingEditor]]></managingEditor><pubDate><![CDATA[channel pubdate]]></pubDate><webMaster><![CDATA[channel webMaster]]></webMaster><lastBuildDate><![CDATA[channel lastBuildDate]]></lastBuildDate><generator><![CDATA[channel generator]]></generator><docs><![CDATA[channel docs]]></docs><ttl><![CDATA[channel ttl]]></ttl><rating><![CDATA[channel rating]]></rating><image><url><![CDATA[image url]]></url><title><![CDATA[image title]]></title><link><![CDATA[image link]]></link><description><![CDATA[image description]]></description><width><![CDATA[200]]></width><height><![CDATA[200]]></height></image><cloud domain=\"cloud domain\" path=\"cloud path\" protocol=\"cloud protocol\" registerProcedure=\"cloud register procedure\" port=\"123\"/><cloud domain=\"cloud domain\" path=\"cloud path\" protocol=\"cloud protocol\" registerProcedure=\"cloud register procedure\" port=\"123\"/><category domain=\"category domain\">category value</category><category domain=\"category domain\">category value</category><skipHours><hour><![CDATA[1]]></hour><hour><![CDATA[23]]></hour></skipHours><skipDays><day><![CDATA[Monday]]></day><day><![CDATA[Friday]]></day></skipDays><item><description><![CDATA[item description]]></description><title><![CDATA[item title]]></title><link><![CDATA[item link]]></link><enclosure url=\"enclosure url\" length=\"enclosure length\" type=\"enclosure type\"/><category domain=\"category domain\">category value</category><category domain=\"category domain\">category value</category><author><![CDATA[item author]]></author><copyright><![CDATA[item copyright]]></copyright><guid><![CDATA[item guid]]></guid><language><![CDATA[item language]]></language><pubDate><![CDATA[item pubDate]]></pubDate></item><item><description><![CDATA[item description]]></description><title><![CDATA[item title]]></title><link><![CDATA[item link]]></link><enclosure url=\"enclosure url\" length=\"enclosure length\" type=\"enclosure type\"/><category domain=\"category domain\">category value</category><category domain=\"category domain\">category value</category><author><![CDATA[item author]]></author><copyright><![CDATA[item copyright]]></copyright><guid><![CDATA[item guid]]></guid><language><![CDATA[item language]]></language><pubDate><![CDATA[item pubDate]]></pubDate></item></channel></rss>", output);
+        assertEquals("<?xml version=\"1.0\" ?><rss version=\"2.0\"><channel><description><![CDATA[channel description]]></description><link><![CDATA[channel link]]></link><title><![CDATA[channel title]]></title><language><![CDATA[channel language]]></language><copyright><![CDATA[channel copyright]]></copyright><managingEditor><![CDATA[channel managingEditor]]></managingEditor><pubDate><![CDATA[channel pubdate]]></pubDate><webMaster><![CDATA[channel webMaster]]></webMaster><lastBuildDate><![CDATA[channel lastBuildDate]]></lastBuildDate><generator><![CDATA[channel generator]]></generator><docs><![CDATA[channel docs]]></docs><ttl><![CDATA[channel ttl]]></ttl><rating><![CDATA[channel rating]]></rating><image><url><![CDATA[image url]]></url><title><![CDATA[image title]]></title><link><![CDATA[image link]]></link><description><![CDATA[image description]]></description><width><![CDATA[200]]></width><height><![CDATA[200]]></height></image><cloud domain=\"cloud domain\" path=\"cloud path\" protocol=\"cloud protocol\" registerProcedure=\"cloud register procedure\" port=\"123\"/><cloud domain=\"cloud domain\" path=\"cloud path\" protocol=\"cloud protocol\" registerProcedure=\"cloud register procedure\" port=\"123\"/><category domain=\"category domain\"><![CDATA[category value]]></category><category domain=\"category domain\"><![CDATA[category value]]></category><skipHours><hour><![CDATA[1]]></hour><hour><![CDATA[23]]></hour></skipHours><skipDays><day><![CDATA[Monday]]></day><day><![CDATA[Friday]]></day></skipDays><item><description><![CDATA[item description]]></description><title><![CDATA[item title]]></title><link><![CDATA[item link]]></link><enclosure url=\"enclosure url\" length=\"enclosure length\" type=\"enclosure type\"/><category domain=\"category domain\"><![CDATA[category value]]></category><category domain=\"category domain\"><![CDATA[category value]]></category><author><![CDATA[item author]]></author><copyright><![CDATA[item copyright]]></copyright><guid><![CDATA[item guid]]></guid><language><![CDATA[item language]]></language><pubDate><![CDATA[item pubDate]]></pubDate></item><item><description><![CDATA[item description]]></description><title><![CDATA[item title]]></title><link><![CDATA[item link]]></link><enclosure url=\"enclosure url\" length=\"enclosure length\" type=\"enclosure type\"/><category domain=\"category domain\"><![CDATA[category value]]></category><category domain=\"category domain\"><![CDATA[category value]]></category><author><![CDATA[item author]]></author><copyright><![CDATA[item copyright]]></copyright><guid><![CDATA[item guid]]></guid><language><![CDATA[item language]]></language><pubDate><![CDATA[item pubDate]]></pubDate></item></channel></rss>", output);
         LOG.info(output);
-        LOG.log(Level.INFO, "TEST SUCCESSFUL: RssFeedWriterTest - localWriteTest");
     }
 }

@@ -8,7 +8,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,11 +18,21 @@ public class RssFeedWriter implements IRssFeedWriter {
     private static final Logger LOG = Logger.getLogger(RssFeedWriter.class.getName());
 
     private final XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
-    private Writer stringWriter;
     private XMLStreamWriter writer;
+    private StringWriter stringWriter;
+    private boolean writeValuesAsCData;
 
-    public RssFeedWriter() {
+    public RssFeedWriter(StringWriter stringWriter, boolean writeValuesAsCData) {
         super();
+        try {
+            this.writeValuesAsCData = writeValuesAsCData;
+            this.stringWriter = stringWriter;
+            writer = outputFactory.createXMLStreamWriter(stringWriter);
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+            LOG.log(Level.SEVERE, "EXCEPTION CREATING THE STREAMWRITER", e);
+            throw new RuntimeException("EXCEPTION CREATING THE STREAMWRITER");
+        }
     }
 
     private boolean feedIsWritable(Feed feed) {
@@ -38,7 +47,11 @@ public class RssFeedWriter implements IRssFeedWriter {
     void writeElementWithCDataIfNotNull(String cdata, String elementName, XMLStreamWriter writer) throws XMLStreamException {
         if (cdata != null && cdata.length() > 0) {
             writer.writeStartElement(elementName);
-            writer.writeCData(cdata);
+            if (this.writeValuesAsCData) {
+                writer.writeCData(cdata);
+            } else {
+               writer.writeCharacters(cdata);
+            }
             writer.writeEndElement();
         }
     }
@@ -111,7 +124,13 @@ public class RssFeedWriter implements IRssFeedWriter {
             try {
                 writer.writeStartElement("category");
                 safeWriteAttribute(category.getDomain(), "domain", writer);
-                writer.writeCharacters(category.getValue());
+                if (category.getValue() != null && category.getValue().length() > 0) {
+                    if (this.writeValuesAsCData) {
+                        writer.writeCData(category.getValue());
+                    } else {
+                        writer.writeCharacters(category.getValue());
+                    }
+                }
                 writer.writeEndElement();
             } catch (XMLStreamException xmlStreamException) {
                 xmlStreamException.printStackTrace();
@@ -121,67 +140,69 @@ public class RssFeedWriter implements IRssFeedWriter {
 
     /**
      * @param theChannel the channel that shall be written
-     * @param writer the writer instance
-     * @throws XMLStreamException if writing goes wrong
      */
-    void writeChannel(Channel theChannel, XMLStreamWriter writer) throws XMLStreamException {
-
-        writer.writeStartElement("channel");
-        // write mandatorys
-        writeElementWithCDataIfNotNull(theChannel.getDescription(), "description", writer);
-        writeElementWithCDataIfNotNull(theChannel.getLink(), "link", writer);
-        writeElementWithCDataIfNotNull(theChannel.getTitle(), "title", writer);
-        // write optionals
-        writeElementWithCDataIfNotNull(theChannel.getLanguage(), "language", writer);
-        writeElementWithCDataIfNotNull(theChannel.getCopyright(), "copyright", writer);
-        writeElementWithCDataIfNotNull(theChannel.getManagingEditor(), "managingEditor", writer);
-        writeElementWithCDataIfNotNull(theChannel.getPubDate(), "pubDate", writer);
-        writeElementWithCDataIfNotNull(theChannel.getWebMaster(), "webMaster", writer);
-        writeElementWithCDataIfNotNull(theChannel.getLastBuildDate(), "lastBuildDate", writer);
-        writeElementWithCDataIfNotNull(theChannel.getGenerator(), "generator", writer);
-        writeElementWithCDataIfNotNull(theChannel.getDocs(), "docs", writer);
-        writeElementWithCDataIfNotNull(theChannel.getTtl(), "ttl", writer);
-        writeElementWithCDataIfNotNull(theChannel.getRating(), "rating", writer);
-        if (theChannel.getImage() != null) {
-            writeImage(theChannel.getImage());
-        }
-        // write lists
-        List<Cloud> clouds = theChannel.getCloud();
-        if (clouds != null && !clouds.isEmpty()) {
-            for (Cloud cloud : clouds) {
-                writeCloud(cloud);
+    @Override
+    public void writeChannel(Channel theChannel) {
+        try {
+            writer.writeStartElement("channel");
+            // write mandatorys
+            writeElementWithCDataIfNotNull(theChannel.getDescription(), "description", writer);
+            writeElementWithCDataIfNotNull(theChannel.getLink(), "link", writer);
+            writeElementWithCDataIfNotNull(theChannel.getTitle(), "title", writer);
+            // write optionals
+            writeElementWithCDataIfNotNull(theChannel.getLanguage(), "language", writer);
+            writeElementWithCDataIfNotNull(theChannel.getCopyright(), "copyright", writer);
+            writeElementWithCDataIfNotNull(theChannel.getManagingEditor(), "managingEditor", writer);
+            writeElementWithCDataIfNotNull(theChannel.getPubDate(), "pubDate", writer);
+            writeElementWithCDataIfNotNull(theChannel.getWebMaster(), "webMaster", writer);
+            writeElementWithCDataIfNotNull(theChannel.getLastBuildDate(), "lastBuildDate", writer);
+            writeElementWithCDataIfNotNull(theChannel.getGenerator(), "generator", writer);
+            writeElementWithCDataIfNotNull(theChannel.getDocs(), "docs", writer);
+            writeElementWithCDataIfNotNull(theChannel.getTtl(), "ttl", writer);
+            writeElementWithCDataIfNotNull(theChannel.getRating(), "rating", writer);
+            if (theChannel.getImage() != null) {
+                writeImage(theChannel.getImage());
             }
-        }
-        List<Category> categories = theChannel.getCategory();
-        if (categories != null && !categories.isEmpty()) {
-            for (Category category : categories) {
-                writeCategory(category);
+            // write lists
+            List<Cloud> clouds = theChannel.getCloud();
+            if (clouds != null && !clouds.isEmpty()) {
+                for (Cloud cloud : clouds) {
+                    writeCloud(cloud);
+                }
             }
-        }
-        List<String> skipHours = theChannel.getSkipHours();
-        if (skipHours != null && !skipHours.isEmpty()) {
-            writer.writeStartElement("skipHours");
-            for (String skipHour : skipHours) {
-                writeElementWithCDataIfNotNull(skipHour, "hour", writer);
+            List<Category> categories = theChannel.getCategory();
+            if (categories != null && !categories.isEmpty()) {
+                for (Category category : categories) {
+                    writeCategory(category);
+                }
             }
+            List<String> skipHours = theChannel.getSkipHours();
+            if (skipHours != null && !skipHours.isEmpty()) {
+                writer.writeStartElement("skipHours");
+                for (String skipHour : skipHours) {
+                    writeElementWithCDataIfNotNull(skipHour, "hour", writer);
+                }
+                writer.writeEndElement();
+            }
+            List<String> skipDays = theChannel.getSkipDays();
+            if (skipDays != null && !skipDays.isEmpty()) {
+                writer.writeStartElement("skipDays");
+                for (String skipDay : skipDays) {
+                    writeElementWithCDataIfNotNull(skipDay, "day", writer);
+                }
+                writer.writeEndElement();
+            }
+            List<Item> items = theChannel.getItems();
+            if (items != null && !items.isEmpty()) {
+                for (Item item : items) {
+                    writeItem(item);
+                }
+            }
+            // close the channel element
             writer.writeEndElement();
+        } catch (XMLStreamException xmlStreamException) {
+            xmlStreamException.printStackTrace();
         }
-        List<String> skipDays = theChannel.getSkipDays();
-        if (skipDays != null && !skipDays.isEmpty()) {
-            writer.writeStartElement("skipDays");
-            for (String skipDay : skipDays) {
-                writeElementWithCDataIfNotNull(skipDay, "day", writer);
-            }
-            writer.writeEndElement();
-        }
-        List<Item> items = theChannel.getItems();
-        if (items != null && !items.isEmpty()) {
-            for (Item item : items) {
-                writeItem(item);
-            }
-        }
-        // close the channel element
-        writer.writeEndElement();
     }
 
     /***
@@ -211,15 +232,12 @@ public class RssFeedWriter implements IRssFeedWriter {
         if (feedIsWritable(feed)) {
             Channel theChannel = feed.getChannel();
             try {
-                // create writers
-                stringWriter = new StringWriter();
-                writer = outputFactory.createXMLStreamWriter(stringWriter);
                 // start doc
                 writer.writeStartDocument();
                 writer.writeStartElement("rss");
                 writer.writeAttribute("version", "2.0");
                 // write channel
-                writeChannel(theChannel, writer);
+                writeChannel(theChannel);
                 // close the rss element
                 writer.writeEndElement();
                 // close the doc
