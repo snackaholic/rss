@@ -13,11 +13,11 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 // TODO check every possible model member of item, channel, feed
-public class RssFeedParserTest {
+public class IFeedByURLProviderImplTest {
 
-    private final Logger LOG = Logger.getLogger(RssFeedParserTest.class.getName());
+    private final Logger LOG = Logger.getLogger(IFeedByURLProviderImplTest.class.getName());
 
-    public RssFeedParserTest() {
+    public IFeedByURLProviderImplTest() {
         super();
     }
 
@@ -28,8 +28,8 @@ public class RssFeedParserTest {
     public void localFileParseTest() {
         try {
             LOG.log(Level.INFO, "STARTING TEST: RssFeedParserTest - localParseTest");
-            RssFeedParser parser = new RssFeedParser();
-            Feed localTestFeed = parser.provideFeedByURL(Paths.get("src/test/resources/testfeed.xml").toUri().toURL());
+            IFeedByURLProviderImpl iFeedByURLProvider = new IFeedByURLProviderImpl();
+            Feed localTestFeed = iFeedByURLProvider.provideFeedByURL(Paths.get("src/test/resources/testfeed.xml").toUri().toURL());
             LOG.log(Level.INFO, "CHECKING DESCRIPTION:");
             assertEquals("The Rough Cut features in-depth interviews with the top film and television post production professionals working in the industry today.  Hosted by @MattFeury of Avid Technology.", localTestFeed.getChannel().getDescription());
             LOG.log(Level.INFO, "CHECKING ITEMS:");
@@ -74,8 +74,8 @@ public class RssFeedParserTest {
     public void remoteFileParseTest() {
         try {
             LOG.log(Level.INFO, "STARTING TEST: RssFeedParserTest - remoteParseTest");
-            RssFeedParser parser = new RssFeedParser();
-            Feed localTestFeed = parser.provideFeedByURL(new URL("https://raw.githubusercontent.com/snackaholic/rss/main/src/test/resources/testfeed.xml"));
+            IFeedByURLProviderImpl iFeedByURLProvider = new IFeedByURLProviderImpl();
+            Feed localTestFeed = iFeedByURLProvider.provideFeedByURL(new URL("https://raw.githubusercontent.com/snackaholic/rss/main/src/test/resources/testfeed.xml"));
             LOG.log(Level.INFO, "CHECKING DESCRIPTION:");
             assertEquals("The Rough Cut features in-depth interviews with the top film and television post production professionals working in the industry today.  Hosted by @MattFeury of Avid Technology.", localTestFeed.getChannel().getDescription());
             LOG.log(Level.INFO, "CHECKING ITEMS:");

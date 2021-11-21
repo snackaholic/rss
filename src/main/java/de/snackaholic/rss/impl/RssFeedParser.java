@@ -1,31 +1,46 @@
 package de.snackaholic.rss.impl;
 
-import de.snackaholic.rss.api.IFeedByURLProvider;
+import de.snackaholic.rss.api.IRssFeedParser;
 import de.snackaholic.rss.model.*;
-
-import javax.xml.stream.XMLEventReader;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Implementation of the IFeedByURLProvider interface
  * TODO write values for lists (channel)
- * TODO extend DefaultHandler for event handling and use SAXParserFactory and Saxparser for this
  */
-public class RssFeedParser implements IFeedByURLProvider {
+public class RssFeedParser extends DefaultHandler implements IRssFeedParser {
 
     private static final Logger LOG = Logger.getLogger(RssFeedParser.class.getName());
     private final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
+
+    // the feed
+    Feed theParsedFeed = new Feed();
+    // the channel of the feed
+    Channel theChannel = new Channel();
+    // the list of items
+    List<Item> items = new ArrayList<>();
+    // the map for the value of channel
+    Map<String, List<String>> channelValueMap = new HashMap<>();
+    // the map for the value of one item
+    Map<String, List<String>> itemValueMap = new HashMap<>();
+    // the map for the attributes of an image
+    Map<String, List<String>> imageValueMap = new HashMap<>();
+    // the image that is currently read by the parser
+    Image image = new Image();
+    // the attributes of the last start tag
+    List<Attribute> attributes;
+    // flag whether we read <item> tag
+    boolean firstItemAlreadyOccured = false;
+    boolean inImage = false;
+    boolean lastEventWasClosingEvent = false;
+    String currentElementName = "";
+    StringBuilder elementValue;
 
     public RssFeedParser() {
         super();
@@ -170,189 +185,181 @@ public class RssFeedParser implements IFeedByURLProvider {
         return null;
     }
 
-    private List<Attribute> getAttributes(StartElement startElement) {
-        List<Attribute> newElementAttributeList = new ArrayList<>();
-        Iterator<?> existingAttributesIterator = startElement.getAttributes();
-        while (existingAttributesIterator.hasNext()) {
-            Attribute attribute = (Attribute) existingAttributesIterator.next();
-            newElementAttributeList.add(attribute);
+    @Override
+    public void startElement(String uri, String localName,
+                             String qName, Attributes attributes) throws SAXException {
+        LOG.info("startElement: uri=" + uri + ", localName=" + localName + ", qName=" + qName + ", attributes=" + attributes);
+        elementValue = new StringBuilder();
+        lastEventWasClosingEvent = false;
+        // get the element name
+        currentElementName = qName;
+        // check if tag is item or image > we start creating item / image than
+        if (currentElementName.equalsIgnoreCase("item")) {
+            firstItemAlreadyOccured = true;
+        } else if (currentElementName.equalsIgnoreCase("image")) {
+            inImage = true;
         }
-        return newElementAttributeList;
+        LOG.info(" GOT LOCAL START TAG NAME: " + currentElementName);
+        // try to extract list of attributes
+        LOG.info(currentElementName + " GOT " + attributes.getLength() + " ATTRIBUTES");
+        // add them to the correct map
+        if (attributes.getLength() > 0) {
+            if (inImage) {
+               addAttributesToMap(imageValueMap, attributes, currentElementName);
+            } else {
+                // we are processing the channel
+                if (!firstItemAlreadyOccured) {
+                    addAttributesToMap(channelValueMap, attributes, currentElementName);
+                } else {
+                    // we are processing an item
+                    addAttributesToMap(itemValueMap, attributes, currentElementName);
+                }
+            }
+        }
     }
 
     @Override
-    public Feed provideFeedByURL(URL url) {
-        LOG.info("TRYING TO PARSE FEED BY URL: " + url.toString());
-        // try to get the file by the url
-        try {
-            // the feed
-            Feed theParsedFeed = new Feed();
-            theParsedFeed.setUrl(url);
-            // the channel of the feed
-            Channel theChannel = new Channel();
-            // the list of items
-            List<Item> items = new ArrayList<>();
-            // the map for the value of channel
-            Map<String, List<String>> channelValueMap = new HashMap<>();
-            // the map for the value of one item
-            Map<String, List<String>> itemValueMap = new HashMap<>();
-            // the map for the attributes of an image
-            Map<String, List<String>> imageValueMap = new HashMap<>();
-            // the image that is currently read by the parser
-            Image image = new Image();
-            // the attributes of the last start tag
-            List<Attribute> attributes;
-            // flag whether we read <item> tag
-            boolean firstItemAlreadyOccured = false;
-            boolean inImage = false;
-            boolean lastEventWasClosingEvent = false;
-            String currentElementName = "";
-            InputStream fileInputStream = getInputStreamOfUrl(url);
-            XMLEventReader eventReader = inputFactory.createXMLEventReader(fileInputStream);
-            while (eventReader.hasNext()) {
-                // get the next element from the node
-                XMLEvent event = eventReader.nextEvent();
-                // handle each event diffrently
-                if (event.isStartElement()) {
-                    lastEventWasClosingEvent = false;
-                    // get the element name
-                    currentElementName = event.asStartElement().getName()
-                            .getLocalPart();
-                    // check if tag is item or image > we start creating item / image than
-                    if (currentElementName.equalsIgnoreCase("item")) {
-                        firstItemAlreadyOccured = true;
-                    } else if (currentElementName.equalsIgnoreCase("image")) {
-                        inImage = true;
-                    }
-                    LOG.info(" GOT LOCAL START TAG NAME: " + currentElementName);
-                    // try to extract list of attributes
-                    attributes = getAttributes(event.asStartElement());
-                    LOG.info(currentElementName + " GOT " + attributes.size() + " ATTRIBUTES");
-                    // add them to the correct map
-                    if (attributes.size() > 0) {
-                        if (inImage) {
-                            addAttributesToMap(imageValueMap, attributes, currentElementName);
-                        } else {
-                            // we are processing the channel
-                            if (!firstItemAlreadyOccured) {
-                                addAttributesToMap(channelValueMap, attributes, currentElementName);
-                            } else {
-                                // we are processing an item
-                                addAttributesToMap(itemValueMap, attributes, currentElementName);
-                            }
-                        }
-                    }
-                } else if (event.isEndElement()) {
-                    lastEventWasClosingEvent = true;
-                    currentElementName = event.asEndElement().getName().getLocalPart();
-                    LOG.info("GOT LOCAL END TAG NAME: " + currentElementName);
-                    // handle end of image tag
-                    if (currentElementName.equalsIgnoreCase("image")) {
-                        inImage = false;
-                        // TODO add image to the item -> see itunes / google for possible attr
-                        // TODO handle attributes
-                        // TODO hanlde single item image
-                        // TODO it looks like there can be mutliple images...
-                        if (!firstItemAlreadyOccured) {
-                            if (theChannel.getImage() == null) {
-                                LOG.info("SETTING IMAGE FOR CHANNEL" + image);
-                                theChannel.setImage(image.clone());
-                            } else {
-                                LOG.severe("DID NOT OVERWRITE IMAGE FOR CHANNEL WITH FOLLOWING IMAGE:" + image);
-                            }
-                        }
-                        // reset the image
-                        image = new Image();
-                        LOG.info("IMAGE FROM CHANNEL NOW HAS VALUE" + theChannel.getImage());
-                        imageValueMap = new HashMap<>();
-                    }
-                    // handle end of item
-                    if (currentElementName.equalsIgnoreCase("item")) {
-                        // create the item
-                        Item newItem = getItemFromValueMap(itemValueMap);
-                        // add the item to the list of items
-                        if (newItem != null) {
-                            items.add(newItem);
-                        }
-                        // clear the item map nonetheless
-                        itemValueMap = new HashMap<>();
-                    }
-                    // handle end of channel
-                    if (currentElementName.equalsIgnoreCase("channel")) {
-                        patchChannelDataByValueMap(theChannel, channelValueMap);
-                        // clear the channelValueMap, although we only respect one channel at the moment
-                        channelValueMap = new HashMap<>();
-                    }
-                } else if (event.isCharacters()) {
-                    // we ignore text after closing element
-                    if (lastEventWasClosingEvent) {
-                        lastEventWasClosingEvent = false;
-                    } else {
-                        Characters data = event.asCharacters();
-                        if (!data.isIgnorableWhiteSpace()) {
-                            String characterData = data.toString();
-                            LOG.info("GOT CHARACTER DATA: " + characterData);
-                            // check if we are in channel, item, or image right now
-                            if (inImage) {
-                                LOG.info("IN IMAGE SETTING IMAGE DATA: " + characterData);
-                                if (currentElementName.equalsIgnoreCase("title")) {
-                                    image.setTitle(characterData);
-                                } else if (currentElementName.equalsIgnoreCase("link")) {
-                                    image.setLink(characterData);
-                                } else if (currentElementName.equalsIgnoreCase("description")) {
-                                    image.setDescription(characterData);
-                                } else if (currentElementName.equalsIgnoreCase("width")) {
-                                    image.setWidth(Integer.parseInt(characterData));
-                                } else if (currentElementName.equalsIgnoreCase("height")) {
-                                    image.setHeight(Integer.parseInt(characterData));
-                                } else if (currentElementName.equalsIgnoreCase("url")) {
-                                    image.setUrl(characterData);
-                                }
-                                LOG.info("IMAGE HAS NOW FOLLWING DATA " + image);
-                            } else {
-                                // if we did not occur item yet
-                                if (!firstItemAlreadyOccured) {
-                                    // add data to channeldatamap
-                                    addCharacterDataToMap(channelValueMap, currentElementName, characterData);
-                                } else {
-                                    // otherwise, it is item data
-                                    addCharacterDataToMap(itemValueMap, currentElementName, characterData);
-                                }
-                            }
-                        }
-                    }
+    public void endElement(String uri, String localName,
+                           String qName)
+            throws SAXException {
+        LOG.info("endElement: uri=" + uri + ", localName=" + localName + ", qName=" + qName);
+        lastEventWasClosingEvent = true;
+        currentElementName = qName;
+        LOG.info("GOT LOCAL END TAG NAME: " + currentElementName);
+        // handle end of image tag
+        if (currentElementName.equalsIgnoreCase("image")) {
+            inImage = false;
+            // TODO add image to the item -> see itunes / google for possible attr
+            // TODO handle attributes
+            // TODO hanlde single item image
+            // TODO it looks like there can be mutliple images...
+            if (!firstItemAlreadyOccured) {
+                if (theChannel.getImage() == null) {
+                    LOG.info("SETTING IMAGE FOR CHANNEL" + image);
+                    theChannel.setImage(image.clone());
+                } else {
+                    LOG.severe("DID NOT OVERWRITE IMAGE FOR CHANNEL WITH FOLLOWING IMAGE:" + image);
                 }
             }
-            LOG.info("SUCCESSFULLY PARSED " + items.size() + " ITEMS FOR FEED " + theParsedFeed.getUrl());
-            // close the reader
-            eventReader.close();
-            // close the inputstream
-            fileInputStream.close();
-            // transfer items to channel
-            theChannel.setItems(items);
-            // transfer channel to feed
-            theParsedFeed.setChannel(theChannel);
-            // return the feed
-            return theParsedFeed;
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "COULD NOT OPEN INPUTSTREAM BY URL", e);
-        } catch (XMLStreamException e) {
-            LOG.log(Level.SEVERE, "EXCEPTION STREAMING THE XML", e);
+            // reset the image
+            image = new Image();
+            LOG.info("IMAGE FROM CHANNEL NOW HAS VALUE" + theChannel.getImage());
+            imageValueMap = new HashMap<>();
         }
-        throw new RuntimeException("COULD NOT PARSE THAT FEED; ABORTING PROCESS");
+        // handle end of item
+        if (currentElementName.equalsIgnoreCase("item")) {
+            // create the item
+            Item newItem = getItemFromValueMap(itemValueMap);
+            // add the item to the list of items
+            if (newItem != null) {
+                items.add(newItem);
+            }
+            // clear the item map nonetheless
+            itemValueMap = new HashMap<>();
+        }
+        // handle end of channel
+        if (currentElementName.equalsIgnoreCase("channel")) {
+            patchChannelDataByValueMap(theChannel, channelValueMap);
+            // clear the channelValueMap, although we only respect one channel at the moment
+            channelValueMap = new HashMap<>();
+        }
     }
 
-    private void addAttributesToMap(Map<String, List<String>> map, List<Attribute> attributes, String prefix) {
+    @Override
+    public void ignorableWhitespace(char ch[], int start, int length)
+            throws SAXException {
+        LOG.info("ignorableWhitespace: start: " + start + ", length: " + length);
+    }
+
+    @Override
+    public void skippedEntity(String name)
+            throws SAXException {
+        LOG.info("skippedEntity: name: " + name);
+    }
+
+    @Override
+    public void processingInstruction(String target, String data)
+            throws SAXException {
+        LOG.info("processingInstruction: target: " + target + ", data: " + data);
+    }
+
+    @Override
+    public void characters(char ch[], int start, int length)
+            throws SAXException {
+        // characterdata can be split over multiple calls
+        StringBuilder temp = new StringBuilder();
+        if (elementValue == null) {
+            elementValue = new StringBuilder();
+        } else {
+            elementValue.append(ch, start, length);
+            temp.append(ch, start, length);
+        }
+        LOG.info("characters: start: " + start + ", length: " + length + ", content:" + temp.toString());
+        // we ignore text after closing element
+        if (lastEventWasClosingEvent) {
+            LOG.info("since last event was closing event we ignore characters: start: " + start + ", length: " + length + ", content: " + temp.toString());
+            lastEventWasClosingEvent = false;
+        } else {
+            String characterData = temp.toString();
+            LOG.info("GOT CHARACTER DATA: " + characterData);
+            // check if we are in channel, item, or image right now
+            if (inImage) {
+                LOG.info("IN IMAGE SETTING IMAGE DATA: " + characterData);
+                if (currentElementName.equalsIgnoreCase("title")) {
+                    image.setTitle(characterData);
+                } else if (currentElementName.equalsIgnoreCase("link")) {
+                    image.setLink(characterData);
+                } else if (currentElementName.equalsIgnoreCase("description")) {
+                    image.setDescription(characterData);
+                } else if (currentElementName.equalsIgnoreCase("width")) {
+                    image.setWidth(Integer.parseInt(characterData));
+                } else if (currentElementName.equalsIgnoreCase("height")) {
+                    image.setHeight(Integer.parseInt(characterData));
+                } else if (currentElementName.equalsIgnoreCase("url")) {
+                    image.setUrl(characterData);
+                }
+                LOG.info("IMAGE HAS NOW FOLLOWING DATA " + image);
+            } else {
+                // if we did not occur item yet
+                if (!firstItemAlreadyOccured) {
+                    // add data to channeldatamap
+                    addCharacterDataToMap(channelValueMap, currentElementName, characterData);
+                } else {
+                    // otherwise, it is item data
+                    addCharacterDataToMap(itemValueMap, currentElementName, characterData);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void startDocument()
+            throws SAXException {
+        LOG.info("START DOCUMENT");
+    }
+
+    @Override
+    public void endDocument()
+            throws SAXException {
+        LOG.info("END DOCUMENT");
+        // transfer items to channel
+        theChannel.setItems(items);
+        LOG.info("CHANNEL HAS " + items.size() + " ITEMS");
+        // transfer channel to feed
+        theParsedFeed.setChannel(theChannel);
+    }
+
+    private void addAttributesToMap(Map<String, List<String>> map, Attributes attributes, String prefix) {
         if (prefix != null) {
             prefix = prefix.toLowerCase();
-            if (attributes.size() != 0) {
-                for (Attribute attr : attributes) {
-                    String key = prefix + "$" + attr.getName().getLocalPart().toLowerCase();
+            if (attributes.getLength() != 0) {
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    String key = prefix + "$" + attributes.getLocalName(i);
                     if (!map.containsKey(key)) {
                         map.put(key, new ArrayList<>());
                     }
                     ArrayList<String> l = (ArrayList<String>) map.get(key);
-                    l.add(attr.getValue());
+                    l.add(attributes.getValue(i));
                     map.put(key, l);
                 }
             }
@@ -371,15 +378,8 @@ public class RssFeedParser implements IFeedByURLProvider {
         }
     }
 
-    /**
-     * Provides inputstream by url
-     *
-     * @param url the url
-     * @return the stream
-     * @throws IOException when something goes wrong opening the stream
-     */
-    private InputStream getInputStreamOfUrl(URL url) throws IOException {
-        LOG.info("TRYING TO READ URL: " + url.toString());
-        return url.openStream();
+    @Override
+    public Feed getFeed() {
+        return theParsedFeed;
     }
 }
