@@ -25,37 +25,28 @@ public class IFeedByURLProviderImpl implements IFeedByURLProvider {
 
     @Override
     public Feed provideFeedByURL(URL url) {
-        LOG.info("TRYING TO PARSE FEED BY URL: " + url.toString());
-        // try to get the file by the url
+        LOG.info("Trying to provide Feed by URL: " + url.toString());
         try {
-            InputStream inputStream = getInputStreamOfUrl(url);
+            InputStream inputStream = url.openStream();
             SAXParserFactory factory = SAXParserFactory.newInstance();
-            try {
-                SAXParser saxParser = factory.newSAXParser();
-                saxParser.parse(inputStream, rssFeedParser);
-                Feed theFeed = rssFeedParser.getFeed();
-                theFeed.setUrl(url);
-                return theFeed;
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            }
+            SAXParser saxParser = factory.newSAXParser();
+            saxParser.parse(inputStream, rssFeedParser);
+            Feed theFeed = rssFeedParser.getFeed();
+            theFeed.setUrl(url);
+            return theFeed;
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            LOG.log(Level.SEVERE, "ParserConfigurationException", e);
+        } catch (SAXException e) {
+            e.printStackTrace();
+            LOG.log(Level.SEVERE, "SaxException", e);
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOG.log(Level.SEVERE, "IOException", e);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "COULD NOT OPEN INPUTSTREAM BY URL", e);
+            e.printStackTrace();
+            LOG.log(Level.SEVERE, "Unhandled Exception", e);
         }
-        throw new RuntimeException("could not provide feed for that url");
-    }
-
-    /**
-     * Provides inputstream by url
-     *
-     * @param url the url
-     * @return the stream
-     * @throws IOException when something goes wrong opening the stream
-     */
-    private InputStream getInputStreamOfUrl(URL url) throws IOException {
-        LOG.info("TRYING TO READ URL: " + url.toString());
-        return url.openStream();
+        throw new RuntimeException("Could not provide valid Feed for that URL");
     }
 }

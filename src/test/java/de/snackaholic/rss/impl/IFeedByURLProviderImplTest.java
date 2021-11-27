@@ -30,10 +30,58 @@ public class IFeedByURLProviderImplTest {
             LOG.log(Level.INFO, "STARTING TEST: RssFeedParserTest - localParseTest");
             IFeedByURLProviderImpl iFeedByURLProvider = new IFeedByURLProviderImpl();
             Feed localTestFeed = iFeedByURLProvider.provideFeedByURL(Paths.get("src/test/resources/testfeed.xml").toUri().toURL());
+            assertNotNull(localTestFeed.getUrl());
+            assertNotNull(localTestFeed.getChannel());
+
+            LOG.info("Checking channel cloud");
+            assertNotNull(localTestFeed.getChannel().getCloud());
+            List<Cloud> cloudList = localTestFeed.getChannel().getCloud();
+            assertNotNull(cloudList.get(0));
+            Cloud c = cloudList.get(0);
+            // <cloud domain="randomdomain" port="80" path="/RPC2" registerProcedure="randomProcedure" protocol="xml-rpc" />
+            assertEquals(c.getDomain(), "randomdomain");
+            assertEquals(c.getPort(), Integer.valueOf("80"));
+            assertEquals(c.getPath(), "/RPC2");
+            assertEquals(c.getRegisterProcedure(), "randomProcedure");
+            assertEquals(c.getProtocol(), "xml-rpc");
+
+            LOG.info("Checking channel categories");
+            assertNotNull(localTestFeed.getChannel().getCategory());
+            String[] expectedChannelCategoryValueStrings = new String[]{"dies", "ist", "ein", "test"};
+            for (int i = 0; i < expectedChannelCategoryValueStrings.length; i++) {
+                String valueToFind = expectedChannelCategoryValueStrings[i];
+                boolean found = false;
+                for (int j = 0; j < localTestFeed.getChannel().getCategory().size(); j++) {
+                    Category cat = localTestFeed.getChannel().getCategory().get(j);
+                    if(cat.getValue().equals(valueToFind)) {
+                        found = true;
+                        break;
+                    }
+                }
+                assertTrue(found);
+            }
+
+            LOG.log(Level.INFO, "CHECKING skipHours & skipDays:");
+            assertNotNull(localTestFeed.getChannel().getSkipDays());
+            List<String> channelSkipDays = localTestFeed.getChannel().getSkipDays();
+            assertTrue(channelSkipDays.contains("Saturday"));
+            assertTrue(channelSkipDays.contains("Sunday"));
+            assertFalse(channelSkipDays.contains("invalid"));
+            assertNotNull(localTestFeed.getChannel().getSkipHours());
+            List<String> channelSkipHours = localTestFeed.getChannel().getSkipHours();
+            assertTrue(channelSkipHours.contains("2"));
+            assertTrue(channelSkipHours.contains("3"));
+            assertTrue(channelSkipHours.contains("4"));
+            assertTrue(channelSkipHours.contains("5"));
+            assertTrue(channelSkipHours.contains("6"));
+            assertFalse(channelSkipHours.contains("invalid"));
+
             LOG.log(Level.INFO, "CHECKING DESCRIPTION:");
             assertEquals("The Rough Cut features in-depth interviews with the top film and television post production professionals working in the industry today.  Hosted by @MattFeury of Avid Technology.", localTestFeed.getChannel().getDescription());
+
             LOG.log(Level.INFO, "CHECKING ITEMS:");
             assertEquals(118, localTestFeed.getChannel().getItems().size());
+
             LOG.log(Level.INFO, "CHECKING FIRST ITEM:");
             Item firstItem = localTestFeed.getChannel().getItems().get(0);
             assertEquals("© 2021 - The Rough Cut Studios", firstItem.getCopyright());
@@ -51,9 +99,9 @@ public class IFeedByURLProviderImplTest {
             for (int i = 0; i < firstItemCategorys.size(); i++) {
                 assertEquals(firstItemCategorys.get(i).getValue(), expectedCategoryValueStrings[i]);
             }
+
             LOG.log(Level.INFO, "CHECKING CHANNEL IMAGE");
             Channel theChannel = localTestFeed.getChannel();
-            assertNotNull(theChannel);
             Image theChannelImage = theChannel.getImage();
             assertNotNull(theChannelImage);
             assertEquals("The Rough Cut", theChannelImage.getTitle());

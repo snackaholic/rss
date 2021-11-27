@@ -37,13 +37,34 @@
         <itunes:subtitle><![CDATA[The Film and TV Post Production Podcast]]></itunes:subtitle>
         <itunes:type>episodic</itunes:type>
 
+        <!-- modification: added example cloud elements -->
+        <cloud domain="randomdomain" port="80" path="/RPC2" registerProcedure="randomProcedure" protocol="xml-rpc" />
+        <cloud domain="randomdomaintwo" port="8080" path="/RPC3" registerProcedure="randomProceduretwo" protocol="xml" />
 
-        <!--
+        <!-- modification: added example category elements -->
+        <category>dies</category>
+        <category>ist</category>
+        <category>ein</category>
+        <category>test</category>
 
-           modification: added language and copyright for test
+        <!-- modification: added example skiphours -->
+        <skipHours>
+            <hour>2</hour>
+            <hour>3</hour>
+            <hour>4</hour>
+            <hour>5</hour>
+            <hour>6</hour>
+            <hour>invalid</hour>
+        </skipHours>
 
-        -->
+        <!-- modification: added example skipDays -->
+        <skipDays>
+            <day>Saturday</day>
+            <day>Sunday</day>
+            <day>invalid</day>
+        </skipDays>
 
+        <!-- modification: added language and copyright for test -->
         <item>
             <language>en</language>
             <copyright><![CDATA[© 2021 - The Rough Cut Studios]]></copyright>
