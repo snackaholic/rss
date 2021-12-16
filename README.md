@@ -74,7 +74,9 @@ Generate a feed:
 boolean useCDATA = true;
 IRssFeedWriter writer = new RssFeedWriter(new StringWriter(), useCDATA);
 Feed testFeed = new Feed();
-testFeed.setChannel("channel description");
+Channel testChannel = new Channel();
+testChannel.setDescription("channel description");
+testFeed.setChannel(testChannel);
 String output = writer.writeFeedToString(testFeed);
 assertEquals("<?xml version=\"1.0\" ?><rss version=\"2.0\"><channel><description><![CDATA[channel description]]></description></channel></rss>", output);
 ```
